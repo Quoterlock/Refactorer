@@ -51,6 +51,7 @@
   <ItemGroup>
     <Compile Include="RenameMethodTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ExtractConstantUnitTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

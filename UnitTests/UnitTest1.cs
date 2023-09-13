@@ -35,7 +35,7 @@ namespace UnitTests
             
             var result = Refactorer2810.ExtractConstant(constant, constantName, inputText);
           
-            Assert.AreEqual(expectedOutput, result, "The magic number was not replaced correctly.");
+            Assert.AreEqual(expectedOutput, result, "The magic number was not replaced correctly.2");
         }
     }
 }

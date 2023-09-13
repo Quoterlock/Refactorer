@@ -21,6 +21,7 @@ namespace UnitTests
                 "\t}\r\n\tvoid NewName()\r\n\t{\r\n\t}\r\n}";
 
             var result = Refactorer2810.RenameMethod(oldName, newName, inputText);
+
             Assert.AreEqual(expectedResult, result);
         }
     }

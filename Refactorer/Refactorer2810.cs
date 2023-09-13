@@ -11,7 +11,6 @@ namespace Refactorer
         public static string ExtractConstant(string text)
         {
             return string.Empty;
-            // just for test
         }
 
         public static string RenameMethod(string oldName, string newName, string text)
@@ -25,3 +24,17 @@ namespace Refactorer
         }
     }
 }
+
+
+/*public static string ExtractConstant(string text)
+{
+    const string SymbolicConstant = "Symbolic_constant";
+    return SymbolicConstant;
+}
+
+public static string ReplaceMagicNumberWithSymbolicConstant(string text, string magicNumber, string symbolicConstant)
+{
+    // Замінюємо всі входження магічного числа на символічну константу у тексті
+    string replacedText = text.Replace(magicNumber, symbolicConstant);
+    return replacedText;
+}*/

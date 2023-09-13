@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -8,7 +9,7 @@ namespace Refactorer
 {
     public static class Refactorer2810
     {
-        public static string ExtractConstant(string text)
+        public static string ExtractConstant(int constantValue, string constantName, string text)
         {
             return string.Empty;
         }

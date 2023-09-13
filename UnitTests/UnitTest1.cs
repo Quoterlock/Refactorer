@@ -28,11 +28,12 @@ namespace UnitTests
         [TestMethod]
         public void TestExtractConstant_ReplacesMagicNumberWithConstant()
         {
-          
-            string inputText = "This is a sample text with a magic number: 42";
-            string expectedOutput = "This is a sample text with a magic number: MAGIC_NUMBER";
+            int constant = 10;
+            string constantName = "MAGIC_NUMBER";
+            string inputText = "void func()\r\n{\r\n\tfor(int = 0; i < 10; i++) {}\r\n}";
+            string expectedOutput = "const int MAGIC_NUMBER = 10;\r\n\r\nvoid func()\r\n{\r\n\tfor(int = 0; i < MAGIC_NUMBER; i++) {}\r\n}";
             
-            var result = YourClassName.ExtractConstant(inputText);
+            var result = Refactorer2810.ExtractConstant(constant, constantName, inputText);
           
             Assert.AreEqual(expectedOutput, result, "The magic number was not replaced correctly.");
         }

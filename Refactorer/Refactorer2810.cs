@@ -11,6 +11,7 @@ namespace Refactorer
         public static string ExtractConstant(string text)
         {
             return string.Empty;
+            // just for test
         }
 
         public static string RenameMethod(string oldName, string newName, string text)

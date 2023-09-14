@@ -8,7 +8,7 @@ namespace UnitTests
     public class RenameMethodTests
     {
         [TestMethod]
-        public void RenameMethodTest()
+        public void Rename_Method_Test()
         {
             string oldName = "OldName"; string newName = "NewName";
             string inputText =
@@ -26,7 +26,7 @@ namespace UnitTests
         }
 
         [TestMethod]
-        public void Class_name_contains_MethodName()
+        public void Class_Name_Contains_MethodName()
         {
             string oldName = "OldName"; string newName = "NewName";
             string inputText = 
@@ -46,7 +46,7 @@ namespace UnitTests
         }
 
         [TestMethod]
-        public void Two_methods_in_one_line()
+        public void Two_Methods_In_One_Line()
         {
             string oldName = "OldName"; string newName = "NewName";
             string inputText = 
@@ -66,7 +66,7 @@ namespace UnitTests
         }
 
         [TestMethod]
-        public void MethodName_contains_another_MethodName_in_the_end()
+        public void MethodName_Contains_Another_MethodName_In_The_End()
         {
             string oldName = "OldName"; string newName = "NewName";
             string inputText = 
@@ -89,7 +89,7 @@ namespace UnitTests
         }
 
         [TestMethod]
-        public void MethodName_contains_another_MethodName_in_the_middle()
+        public void MethodName_Contains_Another_MethodName_In_The_Middle()
         {
             string oldName = "OldName"; string newName = "NewName";
             string inputText = 

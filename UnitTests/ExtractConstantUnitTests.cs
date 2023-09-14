@@ -41,7 +41,7 @@ namespace UnitTests
             string constant = "5";
             string constantName = "MAGIC_CONST";
             string inputText = "for(int i = 0; i < 5; i++)\r\n{\r\n}\r\n\r\nint ch = 2;\r\nswitch(ch)\r\n{\r\n\tcase 2: break;\r\n\tcase 5: break;\r\n}";
-            string expectedOutput = "for(int i = 0; i < MAGIC_CONST; i++)\r\n{\r\n}\r\n\r\nint ch = 2;\r\nswitch(ch)\r\n{\r\n\tcase 2: break;\r\n\tcase 5: break;\r\n}";
+            string expectedOutput = "const int MAGIC_CONST = 5;\r\nfor(int i = 0; i < MAGIC_CONST; i++)\r\n{\r\n}\r\n\r\nint ch = 2;\r\nswitch(ch)\r\n{\r\n\tcase 2: break;\r\n\tcase 5: break;\r\n}";
 
             var result = Refactorer2810.ExtractConstant(constant, constantName, inputText);
 

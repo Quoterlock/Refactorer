@@ -9,7 +9,7 @@ namespace Refactorer
 {
     public static class Refactorer2810
     {
-        public static string ExtractConstant(string intValue, string constantName, string text)
+        public static string ExtractConstant(string constantValue, string constantName, string text)
         {
             return string.Empty;
         }

@@ -8,7 +8,7 @@ namespace UnitTests
     public class ExtractConstantUnitTests
     {
         [TestMethod]
-        public void TestExtractConstant_ReplacesMagicNumberWithConstant()
+        public void Extract_MagicNumber()
         {
             string constant = "10";
             string constantName = "MAGIC_NUMBER";
@@ -21,7 +21,7 @@ namespace UnitTests
         }
 
         [TestMethod]
-        public void TestExtractConstant_ReplaceMagicNumberInArithmeticExample()
+        public void Replace_MagicNumber_In_ArithmeticExample()
         {
             string constant = "10";
             string constantName = "MAGIC_NUMBER";
@@ -34,13 +34,22 @@ namespace UnitTests
         }
 
         [TestMethod]
-        public void TestExtractConstant_ReplaceMagicNumber_TryToFindAnoter()
+        public void Same_Constant_In_Switch_Case()
         {
-           // якщо у нас магічне число 3 і воно використовується для розміру масиву, щоб воно не замінювало в світчкейс цю цифру три
+            // якщо у нас магічне число 3 і воно використовується для розміру масиву, щоб воно не замінювало в світчкейс цю цифру три
+            // REVIEW!!!!!!!!!!!!
+            string constant = "5";
+            string constantName = "MAGIC_CONST";
+            string inputText = "for(int i = 0; i < 5; i++)\r\n{\r\n}\r\n\r\nint ch = 2;\r\nswitch(ch)\r\n{\r\n\tcase 2: break;\r\n\tcase 5: break;\r\n}";
+            string expectedOutput = "for(int i = 0; i < MAGIC_CONST; i++)\r\n{\r\n}\r\n\r\nint ch = 2;\r\nswitch(ch)\r\n{\r\n\tcase 2: break;\r\n\tcase 5: break;\r\n}";
+
+            var result = Refactorer2810.ExtractConstant(constant, constantName, inputText);
+
+            Assert.AreEqual(expectedOutput, result, "The magic number was not replaced correctly.");
         }
 
         [TestMethod]
-        public void TestExtractConstant_ReplaceMagicNumber_WithHashes()
+        public void Extract_StringConstant()
         {
             string key = "text";
             string constantName = "MAGIC_CONSTANT";

@@ -218,5 +218,16 @@ namespace UnitTests
             Assert.AreEqual(expectedOutput, result);
         }
 
+        [TestMethod]
+        public void Constant_In_OtherName()
+        {
+            string input = "void func()\r\n{\r\n\tint res = funcName10() + 10;\r\n}";
+            string expectedOutput = "const int CONST_NAME = 10;\r\nvoid func()\r\n{\r\n\tint res = funcName10() + CONST_NAME;\r\n}";
+            string constantName = "CONST_NAME"; string constantValue = "10"; int row = 2;
+
+            var res = Refactorer2810.ExtractConstant(constantValue, constantName, row, input);
+
+            Assert.AreEqual(expectedOutput, res);
+        }
     }
 }

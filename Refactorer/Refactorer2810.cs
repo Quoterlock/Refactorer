@@ -9,13 +9,23 @@ namespace Refactorer
 {
     public static class Refactorer2810
     {
-        public static string ExtractConstant(string constantValue, string constantName, string text)
+        /*
+            Користувач виділяж назву методу, натискає праву кнопку і обирає Rename
+            виділений текст одразу вводиться в поле зі старою назвою,
+            Користувач вводить нову назву в іншому полі та обирає назву класу (опціонально)
+         */
+        public static string ExtractConstant(string constantValue, string constantName, int rowNumber, string text)
         {
+            //!!!!!!!!
             return string.Empty;
         }
 
-        public static string RenameMethod(string oldName, string newName, string text)
+        public static string RenameMethod(string oldName, string newName, string className, string text)
         {
+            if (className == null || className == string.Empty)
+            { //....
+            }
+
             // OldName + ( => NewName + ( // codeLine.Replace(OldName, NewName, text)
 
             // in one line (OldName() + OldName()) => just divide each line on list of words

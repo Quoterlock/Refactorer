@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Refactorer;
+using Refactorer.Exceptions;
 using System;
 
 namespace UnitTests
@@ -127,7 +128,7 @@ namespace UnitTests
                 var result = Refactorer2810.RenameMethod(oldName, newName, string.Empty, inputText);
                 Assert.IsTrue(false);
             }
-            catch (Exception ex)
+            catch (NameAlreadyExistException ex)
             {
                 Assert.IsTrue(true);
             }
@@ -177,7 +178,29 @@ namespace UnitTests
                 Refactorer2810.RenameMethod(oldName, newName, string.Empty, inputText);
                 result = false;
             }
-            catch (Exception ex)
+            catch (NameAlreadyExistException ex)
+            {
+                result = true;
+            }
+
+            Assert.IsTrue(result);
+        }
+        //10
+        [TestMethod]
+        public void MethodName_Is_Already_Exist()
+        {
+            string oldName = "OldName"; string newName = "MethodName";
+            string className = "MyClass";
+            string inputText = "class MyClass\r\n{\r\n" +
+                "\tvoid MethodName()\r\n\t{\r\n\t}\r\n" +
+                "\tvoid OldName()\r\n\t{\r\n\t}\r\n}";
+
+            bool result = false;
+            try
+            {
+                Refactorer2810.RenameMethod(oldName, newName, className, inputText);
+            }
+            catch (NameAlreadyExistException ex) 
             {
                 result = true;
             }

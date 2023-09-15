@@ -184,5 +184,39 @@ namespace UnitTests
             //Assert.AreEqual(expectedOutput, result, "The magic number was not replaced correctly.");
         }
 
+        [TestMethod]
+        public void Constant_Used_In_Property_Initialization()
+        {
+            // Arrange
+            int selectedRow = 3;
+            string constantValue = "\"John\"";
+            string constantName = "DEFAULT_NAME";
+            string inputText = "public string Name { get; set; } = \"Alice\";";
+            string expectedOutput = "const string DEFAULT_NAME = \"John\";\r\npublic string Name { get; set; } = DEFAULT_NAME;";
+
+            // Act
+            var result = Refactorer2810.ExtractConstant(constantValue, constantName, selectedRow, inputText);
+
+            // Assert
+            Assert.AreEqual(expectedOutput, result);
+        }
+
+        [TestMethod]
+        public void Constant_Used_In_Exception_Message()
+        {
+            // Arrange
+            int selectedRow = 3;
+            string constantValue = "\"An error occurred.\"";
+            string constantName = "ERROR_MESSAGE";
+            string inputText = "try\r\n{\r\n\t// Some code that may throw an exception\r\n}\r\ncatch (Exception ex)\r\n{\r\n\tConsole.WriteLine(\"An error occurred.\");\r\n}";
+            string expectedOutput = "const string ERROR_MESSAGE = \"An error occurred.\";\r\ntry\r\n{\r\n\t// Some code that may throw an exception\r\n}\r\ncatch (Exception ex)\r\n{\r\n\tConsole.WriteLine(ERROR_MESSAGE);\r\n}";
+
+            // Act
+            var result = Refactorer2810.ExtractConstant(constantValue, constantName, selectedRow, inputText);
+
+            // Assert
+            Assert.AreEqual(expectedOutput, result);
+        }
+
     }
 }

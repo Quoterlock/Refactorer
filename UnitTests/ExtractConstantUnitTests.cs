@@ -7,6 +7,7 @@ namespace UnitTests
     [TestClass]
     public class ExtractConstantUnitTests
     {
+        //1
         [TestMethod]
         public void Extract_MagicNumber()
         {
@@ -20,6 +21,7 @@ namespace UnitTests
             Assert.AreEqual(expectedOutput, result, "The magic number was not replaced correctly.");
         }
 
+        //2
         [TestMethod]
         public void Replace_MagicNumber_In_ArithmeticExample()
         {
@@ -33,11 +35,13 @@ namespace UnitTests
             Assert.AreEqual(expectedOutput, result, "The magic number was not replaced correctly.");
         }
 
+        //3
         [TestMethod]
         public void Same_Constant_In_Switch_Case()
         {
             // якщо у нас магічне число 3 і воно використовується для розміру масиву, щоб воно не замінювало в світчкейс цю цифру три
             // REVIEW!!!!!!!!!!!!
+            // Влад, ти геній
             string constant = "5";
             string constantName = "MAGIC_CONST";
             string inputText = "for(int i = 0; i < 5; i++)\r\n{\r\n}\r\n\r\nint ch = 2;\r\nswitch(ch)\r\n{\r\n\tcase 2: break;\r\n\tcase 5: break;\r\n}";
@@ -48,6 +52,7 @@ namespace UnitTests
             Assert.AreEqual(expectedOutput, result, "The magic number was not replaced correctly.");
         }
 
+        //4
         [TestMethod]
         public void Extract_StringConstant()
         {
@@ -60,5 +65,60 @@ namespace UnitTests
 
             Assert.AreEqual(expectedOutput, result, "The magic constant was not replaced correctly.");
         }
+
+        //5
+        // використання магічної константи в агрументі методу
+        [TestMethod]
+        public void ExtractConstant_UseInMethodArgument()
+        {
+            // Arrange
+            string key = "methodArg";
+            string constantName = "MAGIC_CONSTANT";
+            string inputText = "SomeMethod(MAGIC_CONSTANT);";
+            string expectedOutput = "SomeMethod(methodArg);";
+
+            // Act
+            string result = Refactorer2810.ExtractConstant(key, constantName, inputText);
+
+            // Assert
+            Assert.AreEqual(expectedOutput, result, "The magic constant should be used as a method argument.");
+        }
+
+        //6
+        // як розмір масиву (не впевнена щодо цього)
+        [TestMethod]
+        public void ExtractConstant_UseInArraySize()
+        {
+            // Arrange
+            string key = "arraySize";
+            string constantName = "MAGIC_CONSTANT";
+            string inputText = "int[] arr = new int[MAGIC_CONSTANT];";
+            string expectedOutput = "int[] arr = new int[arraySize];";
+
+            // Act
+            string result = Refactorer2810.ExtractConstant(key, constantName, inputText);
+
+            // Assert
+            Assert.AreEqual(expectedOutput, result, "The magic constant should be used as an array size.");
+        }
+
+        //7
+        // тест перевіряє ситуацію, коли магічна константа використовується для побудови рядка, який представляє шлях до ресурсу
+        [TestMethod]
+        public void ExtractConstant_UseInResourcePath()
+        {
+            // Arrange
+            string key = "resourcePath";
+            string constantName = "MAGIC_CONSTANT";
+            string inputText = "string filePath = $\"/resources/{MAGIC_CONSTANT}.txt\";";
+            string expectedOutput = "string filePath = $\"/resources/{resourcePath}.txt\";";
+
+            // Act
+            string result = Refactorer2810.ExtractConstant(key, constantName, inputText);
+
+            // Assert
+            Assert.AreEqual(expectedOutput, result, "The magic constant should be used in a resource path.");
+        }
+
     }
 }

@@ -112,6 +112,31 @@ namespace UnitTests
 
             Assert.AreEqual(expectedResult, result);
         }
+
+        private int a;
+       
+        [TestMethod]
+        public void test ()
+        {
+            string oldName = "OldName"; string newName = "NewName";
+            string inputText = 
+                "class MyClass\r\n{\r\n\tpublic:\r\n" +
+                "\tMyClass()\r\n\t{\r\n\t\tOldName();\r\n" +
+                "\t\tSomeOldNameMethod();\r\n\t}\r\n\r\n" +
+                "\tvoid OldName()\r\n\t{\t\t\r\n\t}\r\n\r\n" +
+                "\tvoid SomeOldNameMethod()\r\n\t{\t\t\r\n\t}\r\n}";
+
+            string expectedResult = 
+                "class MyClass\r\n{\r\n\tpublic:\r\n" +
+                "\tMyClass()\r\n\t{\r\n\t\tNewName();\r\n" +
+                "\t\tSomeOldNameMethod();\r\n\t}\r\n\r\n" +
+                "\tvoid NewName()\r\n\t{\t\t\r\n\t}\r\n\r\n" +
+                "\tvoid SomeOldNameMethod()\r\n\t{\t\t\r\n\t}\r\n}";
+
+            var result = Refactorer2810.RenameMethod(oldName, newName, string.Empty,inputText);
+
+            Assert.AreEqual(expectedResult, result);
+        }
         //6
         [TestMethod]
         public void Two_Same_Methods_In_Different_Classes()

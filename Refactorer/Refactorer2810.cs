@@ -36,7 +36,7 @@ namespace Refactorer
             return string.Empty;
         }
 
-        public static string RemoveUnusedParameters(string text)
+        public static string RemoveUnusedParameters(string paramName, string text)
         {
             return string.Empty;
         }

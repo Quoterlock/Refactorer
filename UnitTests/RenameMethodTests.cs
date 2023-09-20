@@ -113,7 +113,6 @@ namespace UnitTests
             Assert.AreEqual(expectedResult, result);
         }
 
-        private int a;
        
         [TestMethod]
         public void test ()
@@ -147,16 +146,7 @@ namespace UnitTests
                 "\r\nclass SecondClass\r\n{\r\n\tpublic:\r\n" +
                 "\tvoid OldName()\r\n\t{\r\n\t}\r\n}";
 
-            //!!!!!!ТИМЧАСОВЕ РІШЕННЯ!!!!!!!
-            try
-            {
-                var result = Refactorer2810.RenameMethod(oldName, newName, string.Empty, inputText);
-                Assert.IsTrue(false);
-            }
-            catch (NameAlreadyExistException ex)
-            {
-                Assert.IsTrue(true);
-            }
+            Assert.ThrowsException<NameAlreadyExistException>(() => Refactorer2810.RenameMethod(oldName, newName, string.Empty, inputText));
         }
         //7
         [TestMethod]
@@ -175,6 +165,7 @@ namespace UnitTests
 
 
             var result = Refactorer2810.RenameMethod(oldName, newName, className, inputText);
+            Assert.ThrowsException<NameAlreadyExistException>(() => Refactorer2810.RenameMethod(oldName, newName, string.Empty, inputText));
         }
         //8
         [TestMethod]

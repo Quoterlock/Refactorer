@@ -130,7 +130,7 @@ namespace UnitTests
             Assert.AreEqual(result, expectedOutput);
         }
 
-
+        /*
         //5 !!!! For / if / аргумент функції це можна вважати одним випадком (як на мене)!!!!!!
         // використання магічної константи в агрументі методу
         // якщо враховувати що користувач обирає певний рядок - то тест не валідний
@@ -149,9 +149,11 @@ namespace UnitTests
             // Assert
             //Assert.AreEqual(expectedOutput, result, "The magic constant should be used as a method argument.");
         }
+        */
 
         //6
         // як розмір масиву (не впевнена щодо цього)
+        /*
         // якщо враховувати що користувач обирає певний рядок - то тест не валідний
         [TestMethod]
         public void ExtractConstant_UseInArraySize()
@@ -168,8 +170,8 @@ namespace UnitTests
             // Assert
             //Assert.AreEqual(expectedOutput, result, "The magic constant should be used as an array size.");
         }
-
-
+        */
+        /*
         //3 - якщо враховувати що користувач обирає певний рядок - то тест не валідний
         [TestMethod]
         public void Same_Constant_In_Switch_Case()
@@ -183,6 +185,7 @@ namespace UnitTests
 
             //Assert.AreEqual(expectedOutput, result, "The magic number was not replaced correctly.");
         }
+        */
 
         [TestMethod]
         public void Constant_Used_In_Property_Initialization()

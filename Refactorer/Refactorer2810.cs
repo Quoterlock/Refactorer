@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Refactorer.Exceptions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
@@ -36,7 +37,7 @@ namespace Refactorer
             return string.Empty;
         }
 
-        public static string RemoveUnusedParameters(string paramName, string text)
+        public static string RemoveUnusedParameters(string text)
         {
             return string.Empty;
         }

@@ -21,6 +21,7 @@ namespace UnitTests
                 "class Name\r\n{\r\n\tpublic:\r\n" +
                 "\tName()\r\n\t{\r\n\t\tNewName();\r\n" +
                 "\t}\r\n\tvoid NewName()\r\n\t{\r\n\t}\r\n}";
+            // @"class Name";
 
             var result = Refactorer2810.RenameMethod(oldName, newName, string.Empty, inputText);
 
@@ -196,5 +197,9 @@ namespace UnitTests
             // Act + Assert
             Assert.ThrowsException<NameAlreadyExistException>(() => Refactorer2810.RenameMethod(oldName, newName, className, inputText));
         }
+
+        //назва змінної відповідає назві методу
+
+        //якщо метод використовується у коментарі
     }
 }

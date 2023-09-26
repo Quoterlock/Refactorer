@@ -15,7 +15,7 @@ namespace Refactorer
             виділений текст одразу вводиться в поле зі старою назвою,
             Користувач вводить нову назву в іншому полі та обирає назву класу (опціонально)
          */
-        public static string ExtractConstant(string constantValue, string constantName, int rowNumber, string text)
+        public static string ExtractConstant(string constantValue, string constantName, int rowNumber, string text, bool extractAll)
         {
             //!!!!!!!!
             return string.Empty;

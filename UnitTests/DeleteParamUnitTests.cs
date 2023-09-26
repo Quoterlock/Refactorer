@@ -58,7 +58,7 @@ namespace UnitTests
         [TestMethod]
         public void UnusedParam_with_default_value()
         {
-            string input = "void func(int param = 1)\r\n{\r\n\r\n}";
+            string input = "void func(double param = 1)\r\n{\r\n\r\n}";
             string expectedOutput = "void func()\r\n{\r\n\r\n}";
             var res = Refactorer2810.RemoveUnusedParameters(input);
             Assert.AreEqual(expectedOutput, res);
@@ -129,5 +129,9 @@ namespace UnitTests
             Assert.AreEqual(expectedOutput,res);
         }
         */
+
+
+
+        // якщо параметр зустрінеться в коментарі
     }
 }

@@ -118,6 +118,7 @@ namespace UnitTests
             Assert.AreEqual(result, expectedOutput);
         }
 
+        // Збігається з першим кейсом
         //7 - Виніс числа у глобальну константу (якщо не використовується ооп)
         [TestMethod]
         public void Constant_Out_Of_Func()
@@ -179,6 +180,10 @@ namespace UnitTests
             Assert.ThrowsException<NameAlreadyExistException>(() 
                 => Refactorer2810.ExtractConstant(constantValue, constantName, row, input));
         }
+
+        // Якщо зустрічається у коментарі
+
+        // **якщо include то можна нижче ставити (або першим рядком) 
 
         /*
 //5 !!!! For / if / аргумент функції це можна вважати одним випадком (як на мене)!!!!!!

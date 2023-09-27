@@ -15,6 +15,22 @@ namespace Refactorer
         public Form1()
         {
             InitializeComponent();
+            string inputText = @"
+                void someFunc()
+                {
+                    int func = 1;
+                    func();
+                }
+
+                void func() 
+                {
+                }";
+            textBox.Text = inputText;
+        }
+
+        private void textBox_TextChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }

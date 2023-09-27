@@ -2,6 +2,7 @@
 using Refactorer;
 using Refactorer.Exceptions;
 using System;
+using System.Runtime.CompilerServices;
 
 namespace UnitTests
 {
@@ -198,8 +199,136 @@ namespace UnitTests
             Assert.ThrowsException<NameAlreadyExistException>(() => Refactorer2810.RenameMethod(oldName, newName, className, inputText));
         }
 
+        //11
         //назва змінної відповідає назві методу
+        [TestMethod]
+        public void MethodName_Same_As_VarName()
+        {
+            string oldName = "func"; string newName = "newFunc";
+            string inputText = @"
+                void someFunc()
+                {
+                    int func = 1;
+                    func();
+                }
 
+                void func() 
+                {
+                }";
+            string expectedOutput = @"
+                void someFunc()
+                {
+                    int func = 1;
+                    newFunc();
+                }
+
+                void newFunc() 
+                {
+                }";
+
+            // Act
+            string result = Refactorer2810.RenameMethod(oldName, newName, string.Empty, inputText);
+
+            // Assert
+            Assert.AreEqual(result, expectedOutput);
+        }
+
+        //12
         //якщо метод використовується у коментарі
+        [TestMethod]
+        public void MethodName_In_LineComment()
+        {
+            string oldName = "oldName";
+            string newName = "newName";
+            string input = @"
+                void someFunc()
+                {
+                    //oldName();
+                }
+
+                void oldName() 
+                {
+                }";
+            string expectedOutput = @"
+                void someFunc()
+                {
+                    //func();
+                }
+
+                void newName() 
+                {
+                }";
+
+            string result = Refactorer2810.RenameMethod(oldName, newName, string.Empty, input);
+
+            Assert.AreEqual(expectedOutput, result);
+        }
+
+        //13
+        //якщо метод використовується у коментарі
+        [TestMethod]
+        public void MethodName_In_MultilineComment()
+        {
+            string oldName = "oldName";
+            string newName = "newName";
+            string input = @"
+                void someFunc()
+                {
+                    /*
+                    oldName();
+                    */
+                }
+
+                void oldName() 
+                {
+                }";
+            string expectedOutput = @"
+                void someFunc()
+                {
+                    /*
+                    oldName();
+                    */
+                }
+
+                void newName() 
+                {
+                }";
+
+            string result = Refactorer2810.RenameMethod(oldName, newName, string.Empty, input);
+
+            Assert.AreEqual(expectedOutput, result);
+        }
+
+        //14
+        // випадок "func(); //func()"
+        [TestMethod]
+        public void MethodName_Before_LineComment()
+        {
+            string oldName = "oldName";
+            string newName = "newName";
+            string input = @"
+                void someFunc()
+                {
+                    oldName(); //oldName()
+                }
+
+                void oldName() 
+                {
+                }";
+            string expectedOutput = @"
+                void someFunc()
+                {
+                    newName(); //oldName()
+                }
+
+                void newName() 
+                {
+                }";
+
+            string result = Refactorer2810.RenameMethod(oldName, newName, string.Empty, input);
+
+            Assert.AreEqual(expectedOutput, result);
+        }
+
     }
 }

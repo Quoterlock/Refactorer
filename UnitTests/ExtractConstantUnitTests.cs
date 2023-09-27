@@ -18,7 +18,7 @@ namespace UnitTests
             string inputText = "void func()\r\n{\r\n\tfor(int = 0; i < 10; i++) {}\r\n}";
             string expectedOutput = "const int MAGIC_NUMBER = 10;\r\n\r\nvoid func()\r\n{\r\n\tfor(int = 0; i < MAGIC_NUMBER; i++) {}\r\n}";
 
-            var result = Refactorer2810.ExtractConstant(constant, constantName, selectedRow, inputText);
+            var result = Refactorer2810.ExtractConstant(constant, constantName, selectedRow, inputText, false);
 
             Assert.AreEqual(expectedOutput, result, "The magic number was not replaced correctly.");
         }
@@ -33,7 +33,7 @@ namespace UnitTests
             string inputText = "void func()\r\n{\r\n\tx=10+1 {}\r\n}";
             string expectedOutput = "const int MAGIC_NUMBER = 10;\r\n\r\nvoid func()\r\n{\r\n\tx=MAGIC_NUMBER+1 {}\r\n}";
 
-            var result = Refactorer2810.ExtractConstant(constant, constantName, selectedRow, inputText);
+            var result = Refactorer2810.ExtractConstant(constant, constantName, selectedRow, inputText, false);
 
             Assert.AreEqual(expectedOutput, result, "The magic number was not replaced correctly.");
         }
@@ -48,7 +48,7 @@ namespace UnitTests
             string inputText = "void func()\r\n{\r\n\tif(key == \"text\")  {}\r\n}";
             string expectedOutput = "const int MAGIC_CONSTANT = \"text\"\r\n\r\nvoid func()\r\n{\r\n\tif(key == MAGIC_CONSTANT) {}\r\n}";
 
-            var result = Refactorer2810.ExtractConstant(key, constantName, selectedRow, inputText);
+            var result = Refactorer2810.ExtractConstant(key, constantName, selectedRow, inputText, false);
 
             Assert.AreEqual(expectedOutput, result, "The magic constant was not replaced correctly.");
         }
@@ -65,7 +65,7 @@ namespace UnitTests
             string expectedOutput = "string filePath = \"/resources/\" + MAGIC_CONSTANT + \".txt\";";
 
             // Act
-            string result = Refactorer2810.ExtractConstant(key, constantName, selectedRow, inputText);
+            string result = Refactorer2810.ExtractConstant(key, constantName, selectedRow, inputText, false);
 
             // Assert
             Assert.AreEqual(expectedOutput, result, "The magic constant should be used in a resource path.");
@@ -93,7 +93,7 @@ namespace UnitTests
                 "\tpublic: void AnotherFunc()\r\n\t{\r\n" +
                 "\t\tint res = CONST_NAME + 5;\r\n\t}\r\n}";
 
-            var result = Refactorer2810.ExtractConstant(constantValue, constantName, selectedRow, inputText);
+            var result = Refactorer2810.ExtractConstant(constantValue, constantName, selectedRow, inputText, false);
 
             Assert.AreEqual(result, expectedOutput);
         }
@@ -113,7 +113,7 @@ namespace UnitTests
                 "\tpublic: void Func()\r\n\t{\r\n" +
                 "\t\tint res = CONST_NAME + CONST_NAME;\r\n\t}\r\n}";
 
-            var result = Refactorer2810.ExtractConstant(constantValue, constantName, selectedRow, inputText);
+            var result = Refactorer2810.ExtractConstant(constantValue, constantName, selectedRow, inputText, false);
 
             Assert.AreEqual(result, expectedOutput);
         }
@@ -129,7 +129,7 @@ namespace UnitTests
             string inputText = "void Func()\r\n{\r\n\tint res = 10 + 1;\r\n}";
             string expectedOutput = "const int CONST_NAME = 10\r\nvoid Func()\r\n{\r\n\tint res = CONST_NAME + 1;\r\n}";
 
-            var result = Refactorer2810.ExtractConstant(constantValue, constantName, selectedRow, inputText);
+            var result = Refactorer2810.ExtractConstant(constantValue, constantName, selectedRow, inputText, false);
 
             Assert.AreEqual(result, expectedOutput);
         }
@@ -146,7 +146,7 @@ namespace UnitTests
             string expectedOutput = "const string ERROR_MESSAGE = \"An error occurred.\";\r\ntry\r\n{\r\n\t// Some code that may throw an exception\r\n}\r\ncatch (Exception ex)\r\n{\r\n\tConsole.WriteLine(ERROR_MESSAGE);\r\n}";
 
             // Act
-            var result = Refactorer2810.ExtractConstant(constantValue, constantName, selectedRow, inputText);
+            var result = Refactorer2810.ExtractConstant(constantValue, constantName, selectedRow, inputText, false);
 
             // Assert
             Assert.AreEqual(expectedOutput, result);
@@ -161,7 +161,7 @@ namespace UnitTests
             string expectedOutput = "const int CONST_NAME = 10;\r\nvoid func()\r\n{\r\n\tint res = funcName10() + CONST_NAME;\r\n}";
             string constantName = "CONST_NAME"; string constantValue = "10"; int row = 2;
 
-            var res = Refactorer2810.ExtractConstant(constantValue, constantName, row, input);
+            var res = Refactorer2810.ExtractConstant(constantValue, constantName, row, input, false);
 
             Assert.AreEqual(expectedOutput, res);
         }
@@ -178,88 +178,13 @@ namespace UnitTests
 
             // Act + Assert
             Assert.ThrowsException<NameAlreadyExistException>(() 
-                => Refactorer2810.ExtractConstant(constantValue, constantName, row, input));
+                => Refactorer2810.ExtractConstant(constantValue, constantName, row, input, false));
         }
 
         // Якщо зустрічається у коментарі
 
         // **якщо include то можна нижче ставити (або першим рядком) 
 
-        /*
-//5 !!!! For / if / аргумент функції це можна вважати одним випадком (як на мене)!!!!!!
-// використання магічної константи в агрументі методу
-// якщо враховувати що користувач обирає певний рядок - то тест не валідний
-[TestMethod]
-public void ExtractConstant_UseInMethodArgument()
-{
-    // Arrange
-    string key = "methodArg";
-    string constantName = "MAGIC_CONSTANT";
-    string inputText = "SomeMethod(MAGIC_CONSTANT);";
-    string expectedOutput = "SomeMethod(methodArg);";
-
-    // Act
-    //string result = Refactorer2810.ExtractConstant(key, constantName, inputText);
-
-    // Assert
-    //Assert.AreEqual(expectedOutput, result, "The magic constant should be used as a method argument.");
-}
-*/
-
-        //6
-        // як розмір масиву (не впевнена щодо цього)
-        /*
-        // якщо враховувати що користувач обирає певний рядок - то тест не валідний
-        [TestMethod]
-        public void ExtractConstant_UseInArraySize()
-        {
-            // Arrange
-            string key = "arraySize";
-            string constantName = "MAGIC_CONSTANT";
-            string inputText = "int[] arr = new int[MAGIC_CONSTANT];";
-            string expectedOutput = "int[] arr = new int[arraySize];";
-
-            // Act
-            //string result = Refactorer2810.ExtractConstant(key, constantName, inputText);
-
-            // Assert
-            //Assert.AreEqual(expectedOutput, result, "The magic constant should be used as an array size.");
-        }
-        */
-        /*
-        //3 - якщо враховувати що користувач обирає певний рядок - то тест не валідний
-        [TestMethod]
-        public void Same_Constant_In_Switch_Case()
-        {
-            string constant = "5";
-            string constantName = "MAGIC_CONST";
-            string inputText = "for(int i = 0; i < 5; i++)\r\n{\r\n}\r\n\r\nint ch = 2;\r\nswitch(ch)\r\n{\r\n\tcase 2: break;\r\n\tcase 5: break;\r\n}";
-            string expectedOutput = "const int MAGIC_CONST = 5;\r\nfor(int i = 0; i < MAGIC_CONST; i++)\r\n{\r\n}\r\n\r\nint ch = 2;\r\nswitch(ch)\r\n{\r\n\tcase 2: break;\r\n\tcase 5: break;\r\n}";
-
-            //var result = Refactorer2810.ExtractConstant(constant, constantName, inputText);
-
-            //Assert.AreEqual(expectedOutput, result, "The magic number was not replaced correctly.");
-        }
-        */
-
-        /*
-        // Виніс магічного числа у константу... Це взагалі С++???
-        [TestMethod]
-        public void Constant_Used_In_Property_Initialization()
-        {
-            // Arrange
-            int selectedRow = 3;
-            string constantValue = "\"John\"";
-            string constantName = "DEFAULT_NAME";
-            string inputText = "public string Name { get; set; } = \"John\";";
-            string expectedOutput = "const string DEFAULT_NAME = \"John\";\r\npublic string Name { get; set; } = DEFAULT_NAME;";
-
-            // Act
-            var result = Refactorer2810.ExtractConstant(constantValue, constantName, selectedRow, inputText);
-
-            // Assert
-            Assert.AreEqual(expectedOutput, result);
-        }
-        */
+    
     }
 }

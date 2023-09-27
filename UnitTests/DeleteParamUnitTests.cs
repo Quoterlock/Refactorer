@@ -17,31 +17,6 @@ namespace UnitTests
             Assert.AreEqual(expectedOutput, res);
         }
 
-        /*
-        [TestMethod]
-        public void DeleteParam_ParameterNotPresent_NoChange()
-        {
-            string input = "void someFunction(int param1, int param2)";
-            string paramName = "param3"; // IncorrectParamName
-           
-            string expectedOutput = "void someFunction(int param2)";
-            var res = Refactorer2810.RemoveUnusedParameters(paramName,  input);
-            Assert.AreEqual(expectedOutput,res);
-        }
-        */
-
-        /*
-        [TestMethod]
-        public void DeleterParam_NotFunction_ThrowException()
-        {
-            // Arrange
-            string input = "int param1 = 10;";
-            string paramName = "param1";
-            var res = Refactorer2810.RemoveUnusedParameters(paramName, input);
-            //Assert.ThrowsException<>(() => Refactorer2810.RemoveUnusedParameters(paramName, input));
-        }
-        */
-
         // 2 - Видалення невикористовуваного параметра,
         //     якщо ім'я параметра збігається з назвою функції
         [TestMethod]
@@ -50,7 +25,7 @@ namespace UnitTests
             string input = "void func(int test)\r\n{\r\n\tint res = test();\r\n}";
             string expectedOutput = "void func()\r\n{\r\n\tint res = test();\r\n}";
             var res = Refactorer2810.RemoveUnusedParameters(input);
-            Assert.AreEqual(expectedOutput,res);
+            Assert.AreEqual(expectedOutput, res);
         }
 
         // 3 - Видалення невикористовуваного параметра
@@ -118,20 +93,48 @@ namespace UnitTests
             Assert.AreEqual(expectedOutput, res);
         }
 
-        /*
+        // 9 - якщо параметр зустрінеться в коментарі
         [TestMethod]
-        public void DeleteParam_EmptyFunction_NoChange()
+        public void UnusedParam_Used_Id_LineComment()
         {
-            string input = "void someFunction()";
-            string paramName = "param1";
-            string expectedOutput = "void someFunction()";
-            var res = Refactorer2810.RemoveUnusedParameters(paramName,  input);
-            Assert.AreEqual(expectedOutput,res);
+            string input = @"
+                void func(int param)
+                {
+                    //param = 0;
+                }
+            ";
+            string expectedOutput = @"
+                void func()
+                {
+                    //param = 0;
+                }
+            ";
+            var res = Refactorer2810.RemoveUnusedParameters(input);
+            Assert.AreEqual(expectedOutput, res);
         }
-        */
 
-
-
-        // якщо параметр зустрінеться в коментарі
+        // 10 - якщо параметр зустрінеться в коментарі
+        [TestMethod]
+        public void UnusedParam_Used_Id_MultilineComment()
+        {
+            string input = @"
+                void func(int param)
+                {
+                    /*
+                    param = 0;
+                    */
+                }
+            ";
+            string expectedOutput = @"
+                void func()
+                {
+                    /*
+                    param = 0;
+                    */
+                }
+            ";
+            var res = Refactorer2810.RemoveUnusedParameters(input);
+            Assert.AreEqual(expectedOutput, res);
+        }
     }
 }

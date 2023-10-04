@@ -9,7 +9,7 @@ namespace UnitTests
     [TestClass]
     public class RenameMethodTests
     {
-        //1 - Переіменування методу (звичайний випадок)
+        // 1 - Переіменування методу (звичайний випадок)
         [TestMethod]
         public void Rename_Method_Test()
         {
@@ -22,14 +22,13 @@ namespace UnitTests
                 "class Name\r\n{\r\n\tpublic:\r\n" +
                 "\tName()\r\n\t{\r\n\t\tNewName();\r\n" +
                 "\t}\r\n\tvoid NewName()\r\n\t{\r\n\t}\r\n}";
-            // @"class Name";
 
             var result = Refactorer2810.RenameMethod(oldName, newName, string.Empty, inputText);
 
             Assert.AreEqual(expectedResult, result);
         }
 
-        //2 - Назва класу містить назву методу
+        // 2 - Назва класу містить назву методу
         //    -> Не змінювати назву класу 
         [TestMethod]
         public void Class_Name_Contains_MethodName()
@@ -51,7 +50,7 @@ namespace UnitTests
             Assert.AreEqual(expectedResult, result);
         }
 
-        //3 - Переіменування двох методів у одному рядку
+        // 3 - Переіменування двох методів у одному рядку
         [TestMethod]
         public void Two_Methods_In_One_Line()
         {
@@ -72,7 +71,7 @@ namespace UnitTests
             Assert.AreEqual(expectedResult, result);
         }
 
-        //4 - Назва методу містить у собі назву методу (на кінці), який переіменовуємо
+        // 4 - Назва методу містить у собі назву методу (на кінці), який переіменовуємо
         //    -> не змінюємо назву першого
         [TestMethod]
         public void MethodName_Contains_Another_MethodName_In_The_End()
@@ -97,7 +96,7 @@ namespace UnitTests
             Assert.AreEqual(expectedResult, result);
         }
 
-        //5 - Назва методу містить у собі назву методу (в середині), який переіменовуємо
+        // 5 - Назва методу містить у собі назву методу (в середині), який переіменовуємо
         //    -> не змінюємо назву першого
         [TestMethod]
         public void MethodName_Contains_Another_MethodName_In_The_Middle()
@@ -122,7 +121,7 @@ namespace UnitTests
             Assert.AreEqual(expectedResult, result);
         }
 
-        //6 - Два однакових методи у різних класах, якщо користувач не обрав клас
+        // 6 - Два однакових методи у різних класах, якщо користувач не обрав клас
         //    -> виключення
         [TestMethod]
         public void Two_Same_Methods_In_Different_Classes()
@@ -133,11 +132,10 @@ namespace UnitTests
                 "\r\nclass SecondClass\r\n{\r\n\tpublic:\r\n" +
                 "\tvoid OldName()\r\n\t{\r\n\t}\r\n}";
 
-            // TODO: Написати інше виключення для цього випадку
-            Assert.ThrowsException<NameAlreadyExistException>(() => Refactorer2810.RenameMethod(oldName, newName, string.Empty, inputText));
+            Assert.ThrowsException<MoreThanOneMethodExistException>(() => Refactorer2810.RenameMethod(oldName, newName, string.Empty, inputText));
         }
 
-        //7 - Два однакових методи у різних класах
+        // 7 - Два однакових методи у різних класах
         //    -> переіменування тільки у тому класі, який вказав користувач
         [TestMethod]
         public void Two_Same_Methods_In_Different_Classes_With_SelectedClass()
@@ -157,7 +155,7 @@ namespace UnitTests
             Assert.AreEqual(expectedResult, result);
         }
 
-        //8 - Назва методу міститься у символьній константі
+        // 8 - Назва методу міститься у символьній константі
         //    -> Не змінювати символьну константу
         [TestMethod]
         public void MethodName_As_String_Constant()
@@ -174,7 +172,7 @@ namespace UnitTests
             Assert.AreEqual(expectedResult, result);
         }
 
-        //9 - Назва методу, що обрав користувач відповідає зарезервованому слову -> виключення
+        // 9 - Назва методу, що обрав користувач відповідає зарезервованому слову -> виключення
         [TestMethod]
         public void MethodName_Equal_To_ReservedWord()
         {
@@ -185,7 +183,7 @@ namespace UnitTests
             Assert.ThrowsException<NameAlreadyExistException>(() => Refactorer2810.RenameMethod(oldName, newName, string.Empty, inputText));
         }
 
-        //10 - Назва методу, яку вписав користувач вже існує -> виключення
+        // 10 - Назва методу, яку вписав користувач вже існує -> виключення
         [TestMethod]
         public void MethodName_Is_Already_Exist()
         {

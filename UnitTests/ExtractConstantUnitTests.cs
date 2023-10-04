@@ -8,9 +8,9 @@ namespace UnitTests
     [TestClass]
     public class ExtractConstantUnitTests
     {
-        //1 - Виніс магічного числа у константу (звичайний випадок)
+        // 1 - Виніс магічного числа у константу (звичайний випадок)
         [TestMethod]
-        public void Extract_MagicNumber()
+        public void Extract_SingleMagicNumber()
         {
             string constant = "10";
             int selectedRow = 2;
@@ -23,7 +23,7 @@ namespace UnitTests
             Assert.AreEqual(expectedOutput, result, "The magic number was not replaced correctly.");
         }
 
-        //2 - Виніс магічного числа у константу в арифметичних виразах
+        // 2 - Виніс магічного числа у константу в арифметичних виразах
         [TestMethod]
         public void Replace_MagicNumber_In_ArithmeticExample()
         {
@@ -38,7 +38,7 @@ namespace UnitTests
             Assert.AreEqual(expectedOutput, result, "The magic number was not replaced correctly.");
         }
 
-        //3 - Виніс магічного тексту у рядкову константу
+        // 3 - Виніс магічного тексту у рядкову константу
         [TestMethod]
         public void Extract_StringConstant()
         {
@@ -53,7 +53,7 @@ namespace UnitTests
             Assert.AreEqual(expectedOutput, result, "The magic constant was not replaced correctly.");
         }
 
-        //4 - Заміщення частини рядка символьною константою.
+        // 4 - Заміщення частини рядка символьною константою.
         [TestMethod]
         public void ExtractConstant_UseInResourcePath()
         {
@@ -71,7 +71,7 @@ namespace UnitTests
             Assert.AreEqual(expectedOutput, result, "The magic constant should be used in a resource path.");
         }
 
-        //5 - Виніс магічного числа у константу у поля класу (не глобальну)
+        // 5 - Виніс магічного числа у константу у поля класу (не глобальну)
         [TestMethod]
         public void ExtractConstant_In_Its_Class()
         {
@@ -98,7 +98,7 @@ namespace UnitTests
             Assert.AreEqual(result, expectedOutput);
         }
 
-        //6 - Виніс константи, якщо вона зустрічається 2 рази в рядку
+        // 6 - Виніс константи, якщо вона зустрічається 2 рази в рядку
         [TestMethod]
         public void Two_Constants_In_A_Row()
         {
@@ -118,23 +118,7 @@ namespace UnitTests
             Assert.AreEqual(result, expectedOutput);
         }
 
-        // Збігається з першим кейсом
-        //7 - Виніс числа у глобальну константу (якщо не використовується ооп)
-        [TestMethod]
-        public void Constant_Out_Of_Func()
-        {
-            int selectedRow = 2;
-            string constantValue = "10";
-            string constantName = "CONST_NAME";
-            string inputText = "void Func()\r\n{\r\n\tint res = 10 + 1;\r\n}";
-            string expectedOutput = "const int CONST_NAME = 10\r\nvoid Func()\r\n{\r\n\tint res = CONST_NAME + 1;\r\n}";
-
-            var result = Refactorer2810.ExtractConstant(constantValue, constantName, selectedRow, inputText, false);
-
-            Assert.AreEqual(result, expectedOutput);
-        }
-
-        // 8 - Якщо константа використовується у повідомленні до виключення
+        // 7 - Якщо константа використовується у повідомленні до виключення
         [TestMethod]
         public void Constant_Used_In_Exception_Message()
         {
@@ -152,7 +136,7 @@ namespace UnitTests
             Assert.AreEqual(expectedOutput, result);
         }
 
-        // 9 - Якщо назва функції/змінної у цьому ж рядку
+        // 8 - Якщо назва функції/змінної у цьому ж рядку
         //     містить константу у назві -> не виносити
         [TestMethod]
         public void Constant_In_OtherName()
@@ -166,7 +150,7 @@ namespace UnitTests
             Assert.AreEqual(expectedOutput, res);
         }
 
-        // 10 - Якщо константа з такою назвою вже існує -> виключення
+        // 9 - Якщо константа з такою назвою вже існує -> виключення
         [TestMethod]
         public void ConstantName_Already_Exist()
         {
@@ -181,10 +165,85 @@ namespace UnitTests
                 => Refactorer2810.ExtractConstant(constantValue, constantName, row, input, false));
         }
 
-        // Якщо зустрічається у коментарі
+        // 10 - Якщо зустрічається у рядковому коментарі
+        [TestMethod]
+        public void Constant_In_LineComment()
+        {
+            string input = @"
+            
+            void func()
+            {
+                int res = funcName10() + 10; //10
+            }";
+            string expectedOutput = @"const int CONST_NAME = 10;
+       
+            void func()
+            {
+                int res = funcName10() + CONST_NAME; //10
+            }";
+            string constantName = "CONST_NAME"; string constantValue = "10";
 
-        // **якщо include то можна нижче ставити (або першим рядком) 
+            var res = Refactorer2810.ExtractConstant(constantValue, constantName, 0, input, true);
 
-    
+            Assert.AreEqual(expectedOutput, res);
+        }
+
+        // 11 - Якщо зустрічається у рядковому коментарі
+        [TestMethod]
+        public void Constant_In_MultilineComment()
+        {
+            string input = @"
+            
+            void func()
+            {
+                int res = funcName10() + 10;
+                /*
+                    10
+                */
+            }";
+            string expectedOutput = @"const int CONST_NAME = 10;
+       
+            void func()
+            {
+                int res = funcName10() + CONST_NAME;
+                /*
+                    10
+                */
+            }";
+            string constantName = "CONST_NAME"; string constantValue = "10";
+
+            var res = Refactorer2810.ExtractConstant(constantValue, constantName, 0, input, true);
+
+            Assert.AreEqual(expectedOutput, res);
+        }
+
+        // 12 - Виніс магічного числа у константу (в усьому тексті програми)
+        public void Extract_MagicNumber()
+        {
+            string constant = "10";
+            int selectedRow = 2;
+            string constantName = "MAGIC_NUMBER";
+            string inputText = @"void func()
+{
+    for(int = 0; i < 10; i++) 
+    { 
+        int num = 10 + 3;
+    }
+}";
+            string expectedOutput = @"const int MAGIC_NUMBER = 10;
+void func()
+{
+    for(int = 0; i < MAGIC_NUMBER; i++) 
+    { 
+        int num = MAGIC_NUMBER + 3;
+    }
+}";
+
+            var result = Refactorer2810.ExtractConstant(constant, constantName, selectedRow, inputText, true);
+
+            Assert.AreEqual(expectedOutput, result, "The magic number was not replaced correctly.");
+        }
+
+
     }
 }

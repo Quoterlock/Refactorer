@@ -15,6 +15,8 @@ namespace Refactorer
         public Form1()
         {
             InitializeComponent();
+            //this.ContextMenuStrip = contextMenuStrip1;
+            this.textBox.ContextMenuStrip= contextMenuStrip1;
             string inputText = @"
                 void someFunc()
                 {
@@ -28,7 +30,22 @@ namespace Refactorer
             textBox.Text = inputText;
         }
 
-        private void textBox_TextChanged(object sender, EventArgs e)
+        private void renameMethodToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("Rename Method");
+        }
+
+        private void extractConstantToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("Extract Constant");
+        }
+
+        private void deleteParamMenuItem_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("Delete unused params");
+        }
+
+        private void contextMenuStrip1_Opening(object sender, CancelEventArgs e)
         {
 
         }

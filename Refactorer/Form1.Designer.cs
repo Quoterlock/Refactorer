@@ -28,7 +28,13 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.textBox = new System.Windows.Forms.TextBox();
+            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.renameMethodToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.extractConstantToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.deleteParamMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.contextMenuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // textBox
@@ -38,7 +44,37 @@
             this.textBox.Name = "textBox";
             this.textBox.Size = new System.Drawing.Size(776, 409);
             this.textBox.TabIndex = 0;
-            this.textBox.TextChanged += new System.EventHandler(this.textBox_TextChanged);
+            // 
+            // contextMenuStrip1
+            // 
+            this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.renameMethodToolStripMenuItem,
+            this.extractConstantToolStripMenuItem,
+            this.deleteParamMenuItem});
+            this.contextMenuStrip1.Name = "contextMenuStrip1";
+            this.contextMenuStrip1.Size = new System.Drawing.Size(181, 92);
+            this.contextMenuStrip1.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip1_Opening);
+            // 
+            // renameMethodToolStripMenuItem
+            // 
+            this.renameMethodToolStripMenuItem.Name = "renameMethodToolStripMenuItem";
+            this.renameMethodToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.renameMethodToolStripMenuItem.Text = "Rename Method";
+            this.renameMethodToolStripMenuItem.Click += new System.EventHandler(this.renameMethodToolStripMenuItem_Click);
+            // 
+            // extractConstantToolStripMenuItem
+            // 
+            this.extractConstantToolStripMenuItem.Name = "extractConstantToolStripMenuItem";
+            this.extractConstantToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.extractConstantToolStripMenuItem.Text = "Extract Constant";
+            this.extractConstantToolStripMenuItem.Click += new System.EventHandler(this.extractConstantToolStripMenuItem_Click);
+            // 
+            // deleteParamMenuItem
+            // 
+            this.deleteParamMenuItem.Name = "deleteParamMenuItem";
+            this.deleteParamMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.deleteParamMenuItem.Text = "Delete Param";
+            this.deleteParamMenuItem.Click += new System.EventHandler(this.deleteParamMenuItem_Click);
             // 
             // Form1
             // 
@@ -48,6 +84,7 @@
             this.Controls.Add(this.textBox);
             this.Name = "Form1";
             this.Text = "Form1";
+            this.contextMenuStrip1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -56,6 +93,11 @@
         #endregion
 
         private System.Windows.Forms.TextBox textBox;
+        private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
+        private System.Windows.Forms.ToolStripMenuItem renameMethodToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem extractConstantToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem deleteParamMenuItem;
     }
 }
 

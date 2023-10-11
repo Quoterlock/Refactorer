@@ -1,12 +1,15 @@
-﻿using System;
+﻿using Refactorer.Views;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace Refactorer
 {
@@ -33,11 +36,18 @@ namespace Refactorer
         private void renameMethodToolStripMenuItem_Click(object sender, EventArgs e)
         {
             MessageBox.Show("Rename Method");
+            
         }
 
         private void extractConstantToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Extract Constant");
+            string selectedText = textBox.SelectedText;
+            int selectedStart = textBox.SelectionStart;
+            int selectedRow = textBox.GetLineFromCharIndex(selectedStart);
+
+            var menu = new ExtractConstantMenu(textBox.Text, selectedRow, selectedText);
+            menu.ShowDialog();
+            textBox.Text = menu.ResultText;
         }
 
         private void deleteParamMenuItem_Click(object sender, EventArgs e)
@@ -46,6 +56,11 @@ namespace Refactorer
         }
 
         private void contextMenuStrip1_Opening(object sender, CancelEventArgs e)
+        {
+
+        }
+
+        private void textBox_TextChanged(object sender, EventArgs e)
         {
 
         }

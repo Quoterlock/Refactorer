@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -84,7 +85,27 @@ namespace Refactorer
 
         private static bool ParamIsUsed(KeyValuePair<string, string> param, List<string> funcBody)
         {
-            throw new NotImplementedException();
+            //!!!! БЕЗ УРАХУВАННЯ КОМЕНТАРІВ
+            string paramName = param.Key;
+            var separators = new char[] { ' ', '=', '+', '-', '*', '/', '(', ')', '{', '}', ';', '[', ']' };
+            bool isUsed = false;
+
+            foreach (var line in funcBody)
+            {
+                string tmpLine = RemoveStringConst(line);
+                List<string> words = tmpLine.Split(separators).ToList();
+
+                foreach (var word in words)
+                    if (word == paramName || word.Contains(paramName + "."))
+                        isUsed = true;
+            }
+            return isUsed;
+        }
+
+        private static string RemoveStringConst(string line)
+        {
+            var pattern = "\"[^\"]*\"";
+            return Regex.Replace(line, pattern, string.Empty);
         }
 
         private static string ConvertToStringHeader(FunctionHeader header)

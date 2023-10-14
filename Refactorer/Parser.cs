@@ -1,4 +1,5 @@
 ﻿using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -52,6 +53,74 @@ namespace Refactorer
         internal static List<string> GetFunctionBody(FunctionHeader header, List<string> lines)
         {
             throw new NotImplementedException();
+        }
+
+        public static List<string> RemoveComments(List<string> lines)
+        {
+            var newLines = DeleteLineComments(lines);
+            newLines = DeleteMultiLineComments(newLines);
+            return newLines;
+        }
+
+        private static List<string> DeleteMultiLineComments(List<string> lines)
+        {
+            bool isComment = false;
+            List<string> linesNoComments = new List<string>();
+            foreach (var line in lines)
+            {
+                string newLine = string.Empty;
+                for (int i = 1; i < line.Length; i++)
+                {
+                    char[] arr = new char[] { line[i - 1], line[i] };
+                    
+                    if (arr[0] == '/' && arr[1] == '*') 
+                        isComment = true;
+
+                    if (!isComment)
+                    {
+                        newLine += arr[0];
+                        if (i == line.Length - 1)
+                            newLine += arr[1];
+                    }
+
+                    if (arr[0] == '*' && arr[1] == '/')
+                        isComment = false;
+                }
+                linesNoComments.Add(newLine);
+            }
+            return linesNoComments;
+        }
+
+        private static List<string> DeleteLineComments(List<string> lines)
+        {
+            bool isPrevIsDash = false, isStringConstant = false, isAdded = false;
+            List<string> linesNoComments = new List<string>();
+
+            foreach (var line in lines)
+            {
+                isAdded = false;
+                for (int i = 0; i < line.Length; i++)
+                {
+                    if (line[i] == '"')
+                    {
+                        if (isStringConstant) isStringConstant = false;
+                        else isStringConstant = true;
+                    }
+
+                    if (!isStringConstant && isPrevIsDash && line[i] == '/')
+                    {
+                        linesNoComments.Add(line.Remove(i - 1, line.Length - i + 1));
+                        isAdded = true;
+                        isPrevIsDash = false;
+                        break;
+                    }
+
+                    if (line[i] == '/') isPrevIsDash = true;
+                    else isPrevIsDash = false;
+                }
+                if (!isAdded) linesNoComments.Add(line);
+            }
+            return linesNoComments;
         }
     }
 }

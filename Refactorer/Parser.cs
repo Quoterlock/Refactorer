@@ -35,11 +35,11 @@ namespace Refactorer
         }
 
         // Повертає рядок, де треба вставити оголошення константи "const int NAME = 10;"
-        public static int FindPositionForLocalConstantDeclaration(List<string> lines)
+        public static int FindPositionForLocalConstantDeclaration(List<string> lines, int constIndex)
         {
             string keyWord = "class";
             int position = 0;
-            for (int i = lines.Count-1; i >= 0; i--)
+            for (int i = constIndex; i >= 0; i--)
             {
                 position = i;
                 if (lines[i].Contains(keyWord))

@@ -19,19 +19,20 @@ namespace Refactorer
          */
         public static string ExtractConstant(string constantValue, string constantName, int rowNumber, string text, bool extractAll)
         {
-            List<int> constants = new List<int>();
+            Dictionary<int,List<int>> constants = new Dictionary<int, List<int>>();
             var lines = Parser.SplitOnLines(text);
 
-            /*if (!extractAll)
-                /*constants.Add(FindConstPosition(lines, rowNumber, constantValue));#1#
+            if (!extractAll)
+                constants.Add(rowNumber, FindConstPosition(lines[rowNumber], constantValue));
             else
-                
-                /*constants.AddRange(FindAllConstantPositions(lines, constantValue));#1#*/
+                constants = FindAllConstantPositions(lines, constantValue);
+            
+            lines = AddConstDeclaration(lines, constantValue, constantName, constants.First().Key);
 
-            lines = AddConstDeclaration(lines, constantValue, constantName);
-
-            foreach (var constantPos in constants)
-                lines = ReplaceConst(lines, constantPos, constantValue, constantName);
+            foreach(KeyValuePair<int, List<int>> constantPos in constants)
+            {
+                //lines = ReplaceConst(lines, constantPos, constantValue, constantName); constat pos => KeyValuePair<int, List<int>>
+            }
 
             return Parser.ConnectLines(lines);
         }
@@ -125,9 +126,9 @@ namespace Refactorer
             throw new NotImplementedException();
         }
 
-        public static List<string> AddConstDeclaration(List<string> lines, string constantValue, string constantName)
+        public static List<string> AddConstDeclaration(List<string> lines, string constantValue, string constantName, int firstConstIndex)
         {
-            var position = Parser.FindPositionForLocalConstantDeclaration(lines);
+            var position = Parser.FindPositionForLocalConstantDeclaration(lines, firstConstIndex);
             if (int.TryParse(constantValue, out int intValue))
             {
                 string declaration = "const int " + constantName + " = " + intValue + ";";
@@ -221,12 +222,15 @@ namespace Refactorer
             return result;
         }
 
-        private static List<int> FindConstPosition(List<string> lines, string constantValue)
+        private static List<int> FindConstPosition(string line, string constantValue)
         {
+            /*
             var result = FindAllConstantPositions(lines, constantValue);
             if (result == null)
                 return null;
             return result[0];
+            */
+            throw new NotImplementedException();
         }
         private static int FindPositionFor(List<string> lines, int rowNumber, string constantValue)
         {

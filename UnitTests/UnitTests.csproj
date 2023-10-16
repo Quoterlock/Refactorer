@@ -49,6 +49,9 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConstantTests\AddConstDeclarationTest.cs" />
+    <Compile Include="ConstantTests\FindAllConstantPositionsTest.cs" />
+    <Compile Include="ConstantTests\FindPositionForLocalConstantDeclarationTest.cs" />
     <Compile Include="DeleteParamUnitTests.cs" />
     <Compile Include="RenameMethodTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

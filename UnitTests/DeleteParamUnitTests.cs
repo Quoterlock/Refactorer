@@ -1,6 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Refactorer;
-using System.Runtime.Remoting.Messaging;
+using Refactorer.Exceptions;
 
 namespace UnitTests
 {

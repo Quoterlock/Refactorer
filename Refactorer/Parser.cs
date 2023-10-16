@@ -24,6 +24,7 @@ namespace Refactorer
             }
             return text;
         }
+        
 
 
         public static FunctionHeader GetHeader(string stringHeader)
@@ -34,15 +35,37 @@ namespace Refactorer
         }
 
         // Повертає рядок, де треба вставити оголошення константи "const int NAME = 10;"
-        private static int FindPositionForLocalConstantDeclaration(List<string> lines, int row)
+        public static int FindPositionForLocalConstantDeclaration(List<string> lines)
         {
+            string keyWord = "class";
             int position = 0;
-            for (int i = row; i >= 0; i--)
+            for (int i = lines.Count-1; i >= 0; i--)
             {
-                if (lines[i].Contains("class"))
+                position = i;
+                if (lines[i].Contains(keyWord))
                 {
-                    position = i + 2;
-                    return position;
+                    int index = lines[i].IndexOf(keyWord, StringComparison.Ordinal);
+                    if (Char.IsWhiteSpace(lines[i][index+keyWord.Length]))
+                    {
+                        if (index !=0)
+                        {
+                            if (Char.IsWhiteSpace(lines[i][index - 1]))
+                            {
+                                if (lines[i].Contains("{"))
+                                    position = i + 1;
+                                else
+                                    position = i + 2;
+                                
+                                return position;
+                            }
+                        }
+                        else
+                        {
+                            position = i + 2;
+                            return position;
+                        }
+                            
+                    }
                 }
             }
             // if there is no classes

@@ -22,10 +22,11 @@ namespace Refactorer
             List<int> constants = new List<int>();
             var lines = Parser.SplitOnLines(text);
 
-            if (!extractAll)
-                constants.Add(FindConstPosition(lines, rowNumber, constantValue));
+            /*if (!extractAll)
+                /*constants.Add(FindConstPosition(lines, rowNumber, constantValue));#1#
             else
-                constants.AddRange(FindAllConstantPositions(lines, constantValue));
+                
+                /*constants.AddRange(FindAllConstantPositions(lines, constantValue));#1#*/
 
             lines = AddConstDeclaration(lines, constantValue, constantName);
 
@@ -124,26 +125,110 @@ namespace Refactorer
             throw new NotImplementedException();
         }
 
-        private static List<string> AddConstDeclaration(List<string> lines, string constantValue, string constantName)
+        public static List<string> AddConstDeclaration(List<string> lines, string constantValue, string constantName)
         {
-            /*
-            var position = Parser.FindPositionForLocalConstant(text, row);
-            string type = GetType(value);
-            string spaces;
-            foreach (int row in position.Coln)
-                spaces += " ";
-            string declaration = "\n" + tab + "const " + type + " " + name + " = " + value + ";\n";
-            return Insert(position, declaration);
-            */
-            return null;
+            var position = Parser.FindPositionForLocalConstantDeclaration(lines);
+            if (int.TryParse(constantValue, out int intValue))
+            {
+                string declaration = "const int " + constantName + " = " + intValue + ";";
+                lines.Insert(position, declaration);
+            }
+            else if (double.TryParse(constantValue, out double doubleValue))
+            {
+                string declaration = "const double " + constantName + " = " + doubleValue + ";";
+                lines.Insert(position, declaration);
+            }
+            else
+            {
+                string declaration = "const string " + constantName + " = " + constantValue + ";";
+            }
+            return lines;
         }
 
-        private static IEnumerable<int> FindAllConstantPositions(List<string> lines, string constantValue)
+        public static Dictionary<int, List<int>> FindAllConstantPositions(List<string> lines, string constantValue)
         {
-            throw new NotImplementedException();
+            Dictionary<int, List<int>> result = new Dictionary<int, List<int>>();
+            bool isMultiCommented = false;
+            for (int i = 0; i < lines.Count; i++)
+            {
+                if (lines[i].Contains("//"))
+                {
+                    int index = lines[i].IndexOf("//", StringComparison.Ordinal);
+                    lines[i] = lines[i].Remove(index);
+                }
+                List<int> indexList = new List<int>();
+                int offsetValue = 0;
+                if (lines[i].Contains("*/"))
+                {
+                    isMultiCommented = false;
+                }
+                if (!isMultiCommented )
+                {
+                    if (lines[i].Contains("/*") && !lines[i].Contains("*/"))
+                    {
+                        isMultiCommented = true;
+                    }
+
+                    while (lines[i].Contains(constantValue))
+                    {
+                        int firstCommentIndex = lines[i].IndexOf("/*", StringComparison.Ordinal);
+                        int secondCommentIndex = lines[i].IndexOf("*/", StringComparison.Ordinal);
+                        int index = lines[i].IndexOf(constantValue, StringComparison.Ordinal);
+                        if (!Char.IsLetterOrDigit(lines[i][index - 1]) &&
+                            !Char.IsLetterOrDigit(lines[i][index + constantValue.Length]))
+                        {
+
+                            if ((firstCommentIndex == -1 && secondCommentIndex == -1))
+                            {
+                                indexList.Add(index + constantValue.Length * offsetValue);
+                            }
+
+                            else if ((firstCommentIndex != -1 && secondCommentIndex != -1))
+                            {
+                                if (index < firstCommentIndex || index > secondCommentIndex)
+                                {
+                                    indexList.Add(index + constantValue.Length * offsetValue);
+                                }
+                            }
+                            else if (firstCommentIndex != -1)
+                            {
+                                if (index < firstCommentIndex)
+                                {
+                                    indexList.Add(index + constantValue.Length * offsetValue);
+                                }
+                            }
+                            else if (secondCommentIndex != -1)
+                            {
+                                if (index > secondCommentIndex)
+                                {
+                                    indexList.Add(index + constantValue.Length * offsetValue);
+                                }
+                            }
+                        }
+
+                        lines[i] = lines[i].Remove(index, constantValue.Length);
+                        offsetValue++;
+                    }
+                }
+                if(indexList.Count!=0)
+                {
+                    result.Add(i,indexList);
+                }
+            }
+
+            if (result.Count == 0)
+                return null;
+            return result;
         }
 
-        private static int FindConstPosition(List<string> lines, int rowNumber, string constantValue)
+        private static List<int> FindConstPosition(List<string> lines, string constantValue)
+        {
+            var result = FindAllConstantPositions(lines, constantValue);
+            if (result == null)
+                return null;
+            return result[0];
+        }
+        private static int FindPositionFor(List<string> lines, int rowNumber, string constantValue)
         {
             throw new NotImplementedException();
         }

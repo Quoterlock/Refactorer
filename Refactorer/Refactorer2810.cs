@@ -178,35 +178,11 @@ namespace Refactorer
                         if (!Char.IsLetterOrDigit(lines[i][index - 1]) &&
                             !Char.IsLetterOrDigit(lines[i][index + constantValue.Length]))
                         {
-
-                            if ((firstCommentIndex == -1 && secondCommentIndex == -1))
+                            if (isConstantInMultilineComment(lines[i],index))
                             {
                                 indexList.Add(index + constantValue.Length * offsetValue);
                             }
-
-                            else if ((firstCommentIndex != -1 && secondCommentIndex != -1))
-                            {
-                                if (index < firstCommentIndex || index > secondCommentIndex)
-                                {
-                                    indexList.Add(index + constantValue.Length * offsetValue);
-                                }
-                            }
-                            else if (firstCommentIndex != -1)
-                            {
-                                if (index < firstCommentIndex)
-                                {
-                                    indexList.Add(index + constantValue.Length * offsetValue);
-                                }
-                            }
-                            else if (secondCommentIndex != -1)
-                            {
-                                if (index > secondCommentIndex)
-                                {
-                                    indexList.Add(index + constantValue.Length * offsetValue);
-                                }
-                            }
                         }
-
                         lines[i] = lines[i].Remove(index, constantValue.Length);
                         offsetValue++;
                     }
@@ -222,15 +198,66 @@ namespace Refactorer
             return result;
         }
 
-        private static List<int> FindConstPosition(string line, string constantValue)
+        private static bool isConstantInMultilineComment(string line, int index)
         {
-            /*
-            var result = FindAllConstantPositions(lines, constantValue);
-            if (result == null)
-                return null;
-            return result[0];
-            */
-            throw new NotImplementedException();
+            int firstCommentIndex = line.IndexOf("/*", StringComparison.Ordinal);
+            int secondCommentIndex = line.IndexOf("*/", StringComparison.Ordinal);
+            if ((firstCommentIndex == -1 && secondCommentIndex == -1))
+            {
+                return true;
+            }
+
+            else if ((firstCommentIndex != -1 && secondCommentIndex != -1))
+            {
+                if (index < firstCommentIndex || index > secondCommentIndex)
+                {
+                    return true;
+                }
+            }
+            else if (firstCommentIndex != -1)
+            {
+                if (index < firstCommentIndex)
+                {
+                    return true;
+                }
+            }
+            else if (secondCommentIndex != -1)
+            {
+                if (index > secondCommentIndex)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public static List<int> FindConstPosition(string line, string constantValue)
+        {
+            List<int> indexList = new List<int>();
+            int offsetValue = 0;
+            if (line.Contains("//"))
+            {
+                int index = line.IndexOf("//", StringComparison.Ordinal);
+                line = line.Remove(index);
+                
+            }
+            while (line.Contains(constantValue))
+            {
+                int index = line.IndexOf(constantValue, StringComparison.Ordinal);
+                if (index != 0 && !Char.IsLetterOrDigit(line[index - 1]) &&
+                    !Char.IsLetterOrDigit(line[index + constantValue.Length]))
+                {
+                    if (isConstantInMultilineComment(line,index))
+                    {
+                        indexList.Add(index + constantValue.Length * offsetValue);
+                    }
+                }
+                line = line.Remove(index, constantValue.Length);
+                offsetValue++;
+            }
+
+            return indexList;
         }
         private static int FindPositionFor(List<string> lines, int rowNumber, string constantValue)
         {

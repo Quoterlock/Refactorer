@@ -3,6 +3,7 @@ using System.CodeDom;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using static System.Net.Mime.MediaTypeNames;
 
@@ -24,8 +25,12 @@ namespace Refactorer
             }
             return text;
         }
-        
 
+        public static string RemoveStringConstant(string line)
+        {
+            var pattern = "\"[^\"]*\"";
+            return Regex.Replace(line, pattern, string.Empty);
+        }
 
         public static FunctionHeader GetHeader(string stringHeader)
         {
@@ -78,6 +83,7 @@ namespace Refactorer
             throw new NotImplementedException();
         }
 
+        /*
         public static List<string> RemoveComments(List<string> lines)
         {
             var newLines = DeleteLineComments(lines);
@@ -85,6 +91,7 @@ namespace Refactorer
             return newLines;
         }
 
+        
         private static List<string> DeleteMultiLineComments(List<string> lines)
         {
             bool isComment = false;
@@ -145,5 +152,6 @@ namespace Refactorer
             }
             return linesNoComments;
         }
+        */
     }
 }

@@ -1,6 +1,9 @@
 ﻿using Refactorer.Exceptions;
 using System;
+using System.CodeDom;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics.Eventing.Reader;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
@@ -39,22 +42,37 @@ namespace Refactorer
 
         public static string RenameMethod(string oldName, string newName, string className, string text)
         {
-            if (className == null || className == string.Empty)
-            { //....
+            // (!) Не враховує класи. Просто переіменовує за назвою.
+            // (!) Не враховує коментарі (також буде замінювати у рядкових константах)
+            // треба це допрацювати
+            var resultLines = new List<string>();
+
+            var lines = text.Split('\n');
+            foreach (var line in lines)
+            {
+                var indexes = FindAllInLine(line, oldName + "(");
+
+                foreach (var index in indexes)
+                {
+                    if (index == -1)
+                    {
+                        resultLines.Add(line);
+                    }
+                    else if (IsPreviousCharIsSeparator(line, index))
+                    {
+                        string part1 = line.Substring(0, index);
+                        string part3 = line.Substring(index + oldName.Length);
+                        resultLines.Add(part1 + newName + part3);
+                    }
+                }
             }
 
-            // OldName + ( => NewName + ( // codeLine.Replace(OldName, NewName, text)
-
-            // in one line (OldName() + OldName()) => just divide each line on list of words
-
-            // example -> "NameOldName( // check in is " " before OldName (or another symbol
-            // that can't be a part of method name"/", ":", "(")=> " OldName(";
-
-            return string.Empty;
-
-
-
-
+            string result = string.Empty;
+            foreach (var line in resultLines)
+            {
+                result += line + "\n";
+            }
+            return result;
         }
 
         public static string RemoveUnusedParameters(string text)
@@ -82,32 +100,70 @@ namespace Refactorer
         // =============== LOW LVL ====================
         private static List<FunctionHeader> FindFunctionHeaders(List<string> lines)
         {
-            throw new NotImplementedException();
+            /*
+            string codeLine = "int add(int a, int b);";
+
+            string pattern = @"(\w+)\s+(\w+)\s*\(([^)]*)\);";
+
+            Match match = Regex.Match(codeLine, pattern);
+
+            if (match.Success)
+            {
+                string returnType = match.Groups[1].Value;
+                string functionName = match.Groups[2].Value;
+                string parameters = match.Groups[3].Value;
+
+                Console.WriteLine("Return Type: " + returnType);
+                Console.WriteLine("Function Name: " + functionName);
+                Console.WriteLine("Parameters: " + parameters);
+            }
+            else
+            {
+                Console.WriteLine("No function header found in the line.");
+            }
+            */
         }
 
-        private static bool ParamIsUsed(KeyValuePair<string, string> param, List<string> funcBody)
+
+        private static bool ParamIsUsed(KeyValuePair<string, string> parameter, List<string> funcBody)
         {
-            //!!!! БЕЗ УРАХУВАННЯ КОМЕНТАРІВ
-            string paramName = param.Key;
-            var separators = new char[] { ' ', '=', '+', '-', '*', '/', '(', ')', '{', '}', ';', '[', ']' };
             bool isUsed = false;
-
-            foreach (var line in funcBody)
+            bool isMultilineComment = false;
+            foreach(var line in funcBody)
             {
-                string tmpLine = RemoveStringConst(line);
-                List<string> words = tmpLine.Split(separators).ToList();
-
-                foreach (var word in words)
-                    if (word == paramName || word.Contains(paramName + "."))
-                        isUsed = true;
+                // це погано використовувати ref, але поки так.
+                isUsed |= IsParamUsedInLine(parameter.Key, line, ref isMultilineComment);
             }
             return isUsed;
         }
-
-        private static string RemoveStringConst(string line)
+        
+        private static bool IsParamUsedInLine(string parameterName, string line, ref bool isMultiLineComment)
         {
-            var pattern = "\"[^\"]*\"";
-            return Regex.Replace(line, pattern, string.Empty);
+            bool isUsed = false, isLineComment = false;
+
+            line = Parser.RemoveStringConstant(line);
+            
+            var words = line.Split(' ', '=', '+', '-', '(', ')', '{', '}', ';', '[', ']').ToList();
+
+            foreach(var word in words)
+            {
+                isLineComment |= word.Contains("//");
+                if (word.Contains("/*")) isMultiLineComment = true;
+                else if (word.Contains("*/")) isMultiLineComment = false;
+
+                var subWords = word.Split('*', '/');
+
+
+                // TODO: check the situation when "TextHere_paramName.DoSomething()"
+                // or "TextHere.paramName"
+                // Напевно треба зробити все через індекси
+                foreach(var subWord in subWords)
+                    if(subWord == parameterName || subWord.Contains(parameterName + "."))
+                        if(!isLineComment && !isMultiLineComment)
+                            isUsed = true;
+            }
+
+            return isUsed;
         }
 
         private static string ConvertToStringHeader(FunctionHeader header)
@@ -235,6 +291,34 @@ namespace Refactorer
         private static int FindPositionFor(List<string> lines, int rowNumber, string constantValue)
         {
             throw new NotImplementedException();
+        }
+
+        private static List<int> FindAllInLine(string line, string str)
+        {
+            var indexes = new List<int>();
+            int currentIndex = line.IndexOf(str);
+
+            while (currentIndex >= 0)
+            {
+                indexes.Add(currentIndex);
+                currentIndex = line.IndexOf(str, currentIndex + str.Length);
+            }
+            return indexes;
+        }
+
+        private static bool IsPreviousCharIsSeparator(string line, int index)
+        {
+            if (index - 1 < 0) return true;
+            var prevChar = line.ElementAt(index - 1);
+            var separators = new char[] { ' ', '.', '=', '+', '-', '(', ')', '{', '}', ';', '[', ']' };
+            return separators.Contains(prevChar);
+        }
+        private static bool IsNextCharIsSeparator(string line, int index)
+        {
+            if (index + 1 <= line.Length) return true;
+            var nextChar = line.ElementAt(index + 1);
+            var separators = new char[] { ' ', '.', '=', '+', '-', '(', ')', '{', '}', ';', '[', ']' };
+            return separators.Contains(nextChar);
         }
     }
 

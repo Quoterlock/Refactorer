@@ -49,7 +49,7 @@ namespace Refactorer.Views
                 try
                 {
                     ResultText = Refactorer2810.ExtractConstant(
-                        constNameTextBox.Text,
+                        constValueTextBox.Text,
                         constNameTextBox.Text,
                         _row,
                         _text,

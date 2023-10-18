@@ -23,6 +23,7 @@ namespace Refactorer
             {
                 text += line + "\n";
             }
+            text = text.Remove(text.Length-1, 1);
             return text;
         }
 
@@ -30,13 +31,6 @@ namespace Refactorer
         {
             var pattern = "\"[^\"]*\"";
             return Regex.Replace(line, pattern, string.Empty);
-        }
-
-        public static FunctionHeader GetHeader(string stringHeader)
-        {
-            var func = new FunctionHeader();
-            // get all info
-            return func;
         }
 
         // Повертає рядок, де треба вставити оголошення константи "const int NAME = 10;"
@@ -57,17 +51,15 @@ namespace Refactorer
                         {
                             if (Char.IsWhiteSpace(lines[i][index - 1]))
                             {
-                                if (lines[i].Contains("{"))
-                                    position = i + 1;
-                                else
-                                    position = i + 2;
-                                
+                                position = i;
+                                if (!lines[i].Contains("{"))
+                                    position++;
                                 return position;
                             }
                         }
                         else
                         {
-                            position = i + 2;
+                            position = i + 1;
                             return position;
                         }
                             
@@ -84,12 +76,47 @@ namespace Refactorer
             return position;
         }
 
-        internal static List<string> GetFunctionBody(FunctionHeader header, List<string> lines)
+        public static List<string> GetFunctionBody(FunctionHeader header, List<string> lines)
         {
-            throw new NotImplementedException();
+            int openCount = 0;
+            int closeCount = 0;
+            StringBuilder functionBody = new StringBuilder();
+
+
+            for (int i = header.RowInText; i < lines.Count; i++)
+            {
+                openCount += lines[i].Count(c => c == '{');
+                closeCount += lines[i].Count(c => c == '}');
+
+                // Додаємо рядок до тіла функції
+                functionBody.AppendLine(lines[i] + '\n');
+
+                // Якщо кількість відкриваючих та закриваючих дужок зрівнялася
+                if (openCount == closeCount)
+                {
+                    // Повертаємо тіло функції у вигляді списку рядків
+                    return SplitOnLines(functionBody.ToString());
+                }
+
+                // Якщо кількість відкриваючих дужок більше за кількість закриваючих
+                if (openCount > closeCount)
+                    throw new Exception("Error: Unbalanced curly braces");
+            }
+
+            // Якщо кількість відкриваючих та закриваючих дужок не зрівнялася, повертаємо порожній рядок або null
+            return new List<string>();
         }
 
-        /*
+        public static string ConvertToStringHeader(FunctionHeader header)
+        {
+            string parameters = string.Empty;
+            foreach (var parameter in header.Parameters)
+                parameters += parameter.Value + " " + parameter.Key + ",";
+            parameters = parameters.Substring(0, parameters.Length - 1); // remove last coma.
+
+            return header.ReturnValue + " " + header.Name + "(" + parameters + ")\n";
+        }
+        
         public static List<string> RemoveComments(List<string> lines)
         {
             var newLines = DeleteLineComments(lines);
@@ -97,7 +124,6 @@ namespace Refactorer
             return newLines;
         }
 
-        
         private static List<string> DeleteMultiLineComments(List<string> lines)
         {
             bool isComment = false;
@@ -158,6 +184,5 @@ namespace Refactorer
             }
             return linesNoComments;
         }
-        */
     }
 }

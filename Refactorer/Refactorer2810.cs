@@ -5,11 +5,13 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.Eventing.Reader;
 using System.Linq;
+using System.Net.Mime;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Windows.Forms.VisualStyles;
 
 namespace Refactorer
 {
@@ -29,13 +31,10 @@ namespace Refactorer
                 constants.Add(rowNumber, FindConstPosition(lines[rowNumber], constantValue));
             else
                 constants = FindAllConstantPositions(lines, constantValue);
-            
-            lines = AddConstDeclaration(lines, constantValue, constantName, constants.First().Key);
 
-            foreach(KeyValuePair<int, List<int>> constantPos in constants)
-            {
-                //lines = ReplaceConst(lines, constantPos, constantValue, constantName); constat pos => KeyValuePair<int, List<int>>
-            }
+            lines = ReplaceConst(lines, constants, constantValue, constantName); // constat pos => KeyValuePair<int, List<int>>
+
+            lines = AddConstDeclaration(lines, constantValue, constantName, constants.First().Key);
 
             return Parser.ConnectLines(lines);
         }
@@ -90,7 +89,7 @@ namespace Refactorer
                     if (!ParamIsUsed(param, funcBody))
                     {
                         header.Parameters.Remove(param.Key); // Key -> назва параметра, value - тип (int/float...)
-                        lines[header.RowInText] = ConvertToStringHeader(header); // replace header with new one
+                        lines[header.RowInText] = Parser.ConvertToStringHeader(header); // replace header with new one
                     }
                 }
             }
@@ -100,30 +99,25 @@ namespace Refactorer
         // =============== LOW LVL ====================
         private static List<FunctionHeader> FindFunctionHeaders(List<string> lines)
         {
-            /*
-            string codeLine = "int add(int a, int b);";
-
+            var headers = new List<FunctionHeader>();
             string pattern = @"(\w+)\s+(\w+)\s*\(([^)]*)\);";
 
-            Match match = Regex.Match(codeLine, pattern);
-
-            if (match.Success)
+            foreach(var line in lines)
             {
-                string returnType = match.Groups[1].Value;
-                string functionName = match.Groups[2].Value;
-                string parameters = match.Groups[3].Value;
+                Match match = Regex.Match(line, pattern);
+                if (match.Success)
+                {
+                    var header = new FunctionHeader();
+                    header.ReturnValue = match.Groups[1].Value;
+                    header.Name = match.Groups[2].Value;
 
-                Console.WriteLine("Return Type: " + returnType);
-                Console.WriteLine("Function Name: " + functionName);
-                Console.WriteLine("Parameters: " + parameters);
+                    //TODO: add params correctly 
+                    //string parameters = match.Groups[3].Value;
+                    headers.Add(header);
+                }
             }
-            else
-            {
-                Console.WriteLine("No function header found in the line.");
-            }
-            */
+            return headers;            
         }
-
 
         private static bool ParamIsUsed(KeyValuePair<string, string> parameter, List<string> funcBody)
         {
@@ -153,7 +147,6 @@ namespace Refactorer
 
                 var subWords = word.Split('*', '/');
 
-
                 // TODO: check the situation when "TextHere_paramName.DoSomething()"
                 // or "TextHere.paramName"
                 // Напевно треба зробити все через індекси
@@ -166,44 +159,83 @@ namespace Refactorer
             return isUsed;
         }
 
-        private static string ConvertToStringHeader(FunctionHeader header)
+        private static List<string> ReplaceConst(List<string> lines, Dictionary<int, List<int>> constants, string constantValue, string constantName)
         {
-            // from params
-            string parameters = string.Empty;
-            foreach (var param in header.Parameters)
-                parameters += param.Value + " " + param.Key + ",";
-            parameters = parameters.Substring(0, parameters.Length - 1); // remove last coma.
-
-            return header.ReturnValue + " " + header.Name + "(" + parameters + ")\n";
-        }
-
-        private static List<string> ReplaceConst(List<string> lines, int constantPos, string constantValue, string constantName)
-        {
-            throw new NotImplementedException();
-        }
-
-        public static List<string> AddConstDeclaration(List<string> lines, string constantValue, string constantName, int firstConstIndex)
-        {
-            var position = Parser.FindPositionForLocalConstantDeclaration(lines, firstConstIndex);
-            if (int.TryParse(constantValue, out int intValue))
+            foreach(var constantInLine in constants)
             {
-                string declaration = "const int " + constantName + " = " + intValue + ";";
-                lines.Insert(position, declaration);
-            }
-            else if (double.TryParse(constantValue, out double doubleValue))
-            {
-                string declaration = "const double " + constantName + " = " + doubleValue + ";";
-                lines.Insert(position, declaration);
-            }
-            else
-            {
-                string declaration = "const string " + constantName + " = " + constantValue + ";";
+                constantInLine.Value.Reverse();
+                foreach (var constantIndex in constantInLine.Value)
+                {
+                    lines[constantInLine.Key] = lines[constantInLine.Key].Remove(constantIndex, constantValue.Length);
+                    lines[constantInLine.Key] = lines[constantInLine.Key].Insert(constantIndex, constantName);
+                }
             }
             return lines;
         }
 
-        public static Dictionary<int, List<int>> FindAllConstantPositions(List<string> lines, string constantValue)
+        public static List<string> AddConstDeclaration(List<string> lines, string constantValue, string constantName, int index)
         {
+            List<string> updatedLines = new List<string>(lines);
+
+            // Знаходимо позицію для вставки оголошення константи, використовуючи метод з класу Parser
+            var position = Parser.FindPositionForLocalConstantDeclaration(updatedLines, index);
+            string constantType = string.Empty;
+
+            // Спробуємо визначити тип константи за допомогою TryParse
+            if (TryParseConstantType(constantValue, out string inferredType))
+            {
+                constantType = inferredType;
+            }
+
+            // Формуємо оголошення константи
+            string declaration;
+            if (position > 0)
+                declaration = $"\nconst {constantType} {constantName} = {constantValue};\r";
+            else 
+                declaration = $"const {constantType} {constantName} = {constantValue};\r";
+
+            // Вставляємо оголошення на знайдений рядок
+            updatedLines.Insert(position, declaration);
+
+            return updatedLines;
+        }
+
+        private static bool TryParseConstantType(string value, out string type)
+        {
+            if (int.TryParse(value, out _))
+            {
+                type = "int";
+                return true;
+            }
+            else if (double.TryParse(value, out _))
+            {
+                type = "double";
+                return true;
+            }
+            else if (float.TryParse(value, out _))
+            {
+                type = "float";
+                return true;
+            }
+            else if (bool.TryParse(value, out _))
+            {
+                type = "bool";
+                return true;
+            }
+            else if (char.TryParse(value, out _))
+            {
+                type = "char";
+                return true;
+            }
+
+
+            type = "string"; // Якщо не вдалося визначити тип, вважаємо, що це string
+            return false;
+        }
+
+        public static Dictionary<int, List<int>> FindAllConstantPositions(List<string> linesInput, string constantValue)
+        {
+            var lines = new List<string>(linesInput);
             Dictionary<int, List<int>> result = new Dictionary<int, List<int>>();
             bool isMultiCommented = false;
             for (int i = 0; i < lines.Count; i++)
@@ -315,10 +347,6 @@ namespace Refactorer
 
             return indexList;
         }
-        private static int FindPositionFor(List<string> lines, int rowNumber, string constantValue)
-        {
-            throw new NotImplementedException();
-        }
 
         private static List<int> FindAllInLine(string line, string str)
         {
@@ -340,6 +368,7 @@ namespace Refactorer
             var separators = new char[] { ' ', '.', '=', '+', '-', '(', ')', '{', '}', ';', '[', ']' };
             return separators.Contains(prevChar);
         }
+
         private static bool IsNextCharIsSeparator(string line, int index)
         {
             if (index + 1 <= line.Length) return true;
@@ -348,20 +377,4 @@ namespace Refactorer
             return separators.Contains(nextChar);
         }
     }
-
-
 }
-
-
-/*public static string ExtractConstant(string text)
-{
-    const string SymbolicConstant = "Symbolic_constant";
-    return SymbolicConstant;
-}
-
-public static string ReplaceMagicNumberWithSymbolicConstant(string text, string magicNumber, string symbolicConstant)
-{
-    // Замінюємо всі входження магічного числа на символічну константу у тексті
-    string replacedText = text.Replace(magicNumber, symbolicConstant);
-    return replacedText;
-}*/

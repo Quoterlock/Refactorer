@@ -16,7 +16,7 @@ namespace UnitTests
             int selectedRow = 2;
             string constantName = "MAGIC_NUMBER";
             string inputText = "void func()\r\n{\r\n\tfor(int = 0; i < 10; i++) {}\r\n}";
-            string expectedOutput = "const int MAGIC_NUMBER = 10;\r\n\r\nvoid func()\r\n{\r\n\tfor(int = 0; i < MAGIC_NUMBER; i++) {}\r\n}";
+            string expectedOutput = "const int MAGIC_NUMBER = 10;\r\nvoid func()\r\n{\r\n\tfor(int = 0; i < MAGIC_NUMBER; i++) {}\r\n}";
 
             var result = Refactorer2810.ExtractConstant(constant, constantName, selectedRow, inputText, false);
 
@@ -31,7 +31,7 @@ namespace UnitTests
             int selectedRow = 2;
             string constantName = "MAGIC_NUMBER";
             string inputText = "void func()\r\n{\r\n\tx=10+1 {}\r\n}";
-            string expectedOutput = "const int MAGIC_NUMBER = 10;\r\n\r\nvoid func()\r\n{\r\n\tx=MAGIC_NUMBER+1 {}\r\n}";
+            string expectedOutput = "const int MAGIC_NUMBER = 10;\r\nvoid func()\r\n{\r\n\tx=MAGIC_NUMBER+1 {}\r\n}";
 
             var result = Refactorer2810.ExtractConstant(constant, constantName, selectedRow, inputText, false);
 
@@ -45,8 +45,8 @@ namespace UnitTests
             string key = "text";
             int selectedRow = 2;
             string constantName = "MAGIC_CONSTANT";
-            string inputText = "void func()\r\n{\r\n\tif(key == \"text\")  {}\r\n}";
-            string expectedOutput = "const int MAGIC_CONSTANT = \"text\"\r\n\r\nvoid func()\r\n{\r\n\tif(key == MAGIC_CONSTANT) {}\r\n}";
+            string inputText = "void func()\r\n{\r\n\tif(key == \"text\") {}\r\n}";
+            string expectedOutput = "const string MAGIC_CONSTANT = \"text\";\r\nvoid func()\r\n{\r\n\tif(key == MAGIC_CONSTANT) {}\r\n}";
 
             var result = Refactorer2810.ExtractConstant(key, constantName, selectedRow, inputText, false);
 
@@ -170,7 +170,6 @@ namespace UnitTests
         public void Constant_In_LineComment()
         {
             string input = @"
-            
             void func()
             {
                 int res = funcName10() + 10; //10
@@ -193,7 +192,6 @@ namespace UnitTests
         public void Constant_In_MultilineComment()
         {
             string input = @"
-            
             void func()
             {
                 int res = funcName10() + 10;
@@ -202,8 +200,7 @@ namespace UnitTests
                 */
             }";
             string expectedOutput = @"const int CONST_NAME = 10;
-       
-
+      
             void func()
             {
                 int res = funcName10() + CONST_NAME;
@@ -216,7 +213,7 @@ namespace UnitTests
             var res = Refactorer2810.ExtractConstant(constantValue, constantName, 0, input, true);
 
 
-            Assert.AreEqual(expectedOutput.Length, res.Length);
+            Assert.AreEqual(expectedOutput, res);
         }
 
         // 12 - Виніс магічного числа у константу (в усьому тексті програми)

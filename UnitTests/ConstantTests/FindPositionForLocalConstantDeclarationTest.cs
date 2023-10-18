@@ -18,10 +18,11 @@ namespace UnitTests
                     for(int = 0; i < 10; i++) 
                     { 
                         int num10 = 10+10; 
-                    }      
+                    }
+                    class{}      
 
                 }";
-            var result = Parser.FindPositionForLocalConstantDeclaration(Parser.SplitOnLines(text));
+            var result = Parser.FindPositionForLocalConstantDeclaration(Parser.SplitOnLines(text),3);
             int expectedResult = 0;
             Assert.AreEqual(expectedResult, expectedResult);
 
@@ -39,7 +40,7 @@ namespace UnitTests
                     }      
 
                 }}";
-            var result = Parser.FindPositionForLocalConstantDeclaration(Parser.SplitOnLines(text));
+            var result = Parser.FindPositionForLocalConstantDeclaration(Parser.SplitOnLines(text),4);
             int expectedResult = 2;
             Assert.AreEqual(expectedResult, expectedResult);
 
@@ -58,7 +59,7 @@ namespace UnitTests
                     }      
 
                 }}";
-            var result = Parser.FindPositionForLocalConstantDeclaration(Parser.SplitOnLines(text));
+            var result = Parser.FindPositionForLocalConstantDeclaration(Parser.SplitOnLines(text),5);
             int expectedResult = 2;
             Assert.AreEqual(expectedResult, expectedResult);
 
@@ -79,7 +80,7 @@ className = test2;
                     }      
 
                 }}";
-            var result = Parser.FindPositionForLocalConstantDeclaration(Parser.SplitOnLines(text));
+            var result = Parser.FindPositionForLocalConstantDeclaration(Parser.SplitOnLines(text),6);
             int expectedResult = 2;
             Assert.AreEqual(expectedResult, expectedResult);
 
@@ -100,7 +101,7 @@ className = test2;
                     }      
                 }
                 }}";
-            var result = Parser.FindPositionForLocalConstantDeclaration(Parser.SplitOnLines(text));
+            var result = Parser.FindPositionForLocalConstantDeclaration(Parser.SplitOnLines(text),6);
             int expectedResult = 3;
             Assert.AreEqual(expectedResult, expectedResult);
 
@@ -122,8 +123,30 @@ className = test2;
                     }      
                 }
                 }}";
-            var result = Parser.FindPositionForLocalConstantDeclaration(Parser.SplitOnLines(text));
+            var result = Parser.FindPositionForLocalConstantDeclaration(Parser.SplitOnLines(text),7);
             int expectedResult = 4;
+            Assert.AreEqual(expectedResult, expectedResult);
+
+        }
+        
+        [TestMethod]
+        public void BaseCaseWithInclude()
+        {
+            string text = @"#include
+#include
+#include
+                void func()
+                {
+                    string TestclassName = test;
+                    for(int = 0; i < 10; i++) 
+                    { 
+                        int num10 = 10+10; 
+                    }      
+                }
+class{}
+                }}";
+            var result = Parser.FindPositionForLocalConstantDeclaration(Parser.SplitOnLines(text),7);
+            int expectedResult = 3;
             Assert.AreEqual(expectedResult, expectedResult);
 
         }

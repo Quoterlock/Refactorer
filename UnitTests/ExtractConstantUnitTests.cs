@@ -45,7 +45,7 @@ namespace UnitTests
             string key = "text";
             int selectedRow = 2;
             string constantName = "MAGIC_CONSTANT";
-            string inputText = "void func()\r\n{\r\n\tif(key == \"text\")  {}\r\n}";
+            string inputText = "void func()\r\n{\r\n\tif(key == \"text\") {}\r\n}";
             string expectedOutput = "const int MAGIC_CONSTANT = \"text\"\r\n\r\nvoid func()\r\n{\r\n\tif(key == MAGIC_CONSTANT) {}\r\n}";
 
             var result = Refactorer2810.ExtractConstant(key, constantName, selectedRow, inputText, false);

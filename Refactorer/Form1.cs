@@ -35,8 +35,13 @@ namespace Refactorer
 
         private void renameMethodToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Rename Method");
-            
+            string selectedText = textBox.SelectedText;
+            int selectedStart = textBox.SelectionStart;
+            int selectedRow = textBox.GetLineFromCharIndex(selectedStart);
+
+            var menu = new RenameMethodMenu(textBox.Text, selectedText);
+            menu.ShowDialog();
+            textBox.Text = menu.ResultText;
         }
 
         private void extractConstantToolStripMenuItem_Click(object sender, EventArgs e)

@@ -250,7 +250,7 @@ namespace UnitTests
             string expectedOutput = @"
                 void someFunc()
                 {
-                    //func();
+                    //oldName();
                 }
 
                 void newName() 

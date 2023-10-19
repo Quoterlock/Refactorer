@@ -46,32 +46,24 @@ namespace Refactorer
             // треба це допрацювати
             var resultLines = new List<string>();
 
-            var lines = text.Split('\n');
+            var lines = Parser.SplitOnLines(text);
             foreach (var line in lines)
             {
                 var indexes = FindAllInLine(line, oldName + "(");
-
+                string newLine = line;
                 foreach (var index in indexes)
                 {
-                    if (index == -1)
+                    if (IsPreviousCharIsSeparator(line, index))
                     {
-                        resultLines.Add(line);
-                    }
-                    else if (IsPreviousCharIsSeparator(line, index))
-                    {
-                        string part1 = line.Substring(0, index);
-                        string part3 = line.Substring(index + oldName.Length);
-                        resultLines.Add(part1 + newName + part3);
+                        string part1 = newLine.Substring(0, index);
+                        string part3 = newLine.Substring(index + oldName.Length);
+                        newLine = part1 + newName + part3;
                     }
                 }
+                resultLines.Add(newLine);
             }
 
-            string result = string.Empty;
-            foreach (var line in resultLines)
-            {
-                result += line + "\n";
-            }
-            return result;
+            return Parser.ConnectLines(resultLines);
         }
 
         public static string RemoveUnusedParameters(string text)
@@ -365,7 +357,7 @@ namespace Refactorer
         {
             if (index - 1 < 0) return true;
             var prevChar = line.ElementAt(index - 1);
-            var separators = new char[] { ' ', '.', '=', '+', '-', '(', ')', '{', '}', ';', '[', ']' };
+            var separators = new char[] { ' ', '.', '=', '+', '-', '(', ')', '{', '}', ';', '[', ']','\t','\r' };
             return separators.Contains(prevChar);
         }
 

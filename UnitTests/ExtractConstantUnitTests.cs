@@ -89,33 +89,33 @@ namespace UnitTests
                 "\tpublic: void Func()\r\n\t{\r\n" +
                 "\t\tint res = 10 + 5;\r\n\t}\r\n}\r\n" +
                 "\r\nclass AnotherClass\r\n{\r\n" +
-                "\tconst int CONST_NAME = 10;\r\n" +
+                "const int CONST_NAME = 10;\r\n" +
                 "\tpublic: void AnotherFunc()\r\n\t{\r\n" +
                 "\t\tint res = CONST_NAME + 5;\r\n\t}\r\n}";
 
             var result = Refactorer2810.ExtractConstant(constantValue, constantName, selectedRow, inputText, false);
 
-            Assert.AreEqual(result, expectedOutput);
+            Assert.AreEqual(expectedOutput, result);
         }
 
         // 6 - Виніс константи, якщо вона зустрічається 2 рази в рядку
         [TestMethod]
         public void Two_Constants_In_A_Row()
         {
-            int selectedRow = 12;
+            int selectedRow = 4;
             string constantValue = "10";
             string constantName = "CONST_NAME";
             string inputText = "class MyClass\r\n{\r\n" +
                 "\tpublic: void Func()\r\n\t{\r\n" +
                 "\t\tint res = 10 + 10;\r\n\t}\r\n}";
             string expectedOutput = "class MyClass\r\n" +
-                "{\r\n\tconst int CONST_NAME = 10;\r\n" +
+                "{\r\nconst int CONST_NAME = 10;\r\n" +
                 "\tpublic: void Func()\r\n\t{\r\n" +
                 "\t\tint res = CONST_NAME + CONST_NAME;\r\n\t}\r\n}";
 
             var result = Refactorer2810.ExtractConstant(constantValue, constantName, selectedRow, inputText, false);
 
-            Assert.AreEqual(result, expectedOutput);
+            Assert.AreEqual(expectedOutput, result);
         }
 
         // 7 - Якщо константа використовується у повідомленні до виключення
@@ -169,20 +169,18 @@ namespace UnitTests
         [TestMethod]
         public void Constant_In_LineComment()
         {
-            string input = @"
-            void func()
+            string input = @"            void func()
             {
                 int res = funcName10() + 10; //10
             }";
             string expectedOutput = @"const int CONST_NAME = 10;
-       
             void func()
             {
                 int res = funcName10() + CONST_NAME; //10
             }";
             string constantName = "CONST_NAME"; string constantValue = "10";
 
-            var res = Refactorer2810.ExtractConstant(constantValue, constantName, 0, input, true);
+            var res = Refactorer2810.ExtractConstant(constantValue, constantName, 4, input, true);
 
             Assert.AreEqual(expectedOutput, res);
         }
@@ -191,8 +189,7 @@ namespace UnitTests
         [TestMethod]
         public void Constant_In_MultilineComment()
         {
-            string input = @"
-            void func()
+            string input = @"            void func()
             {
                 int res = funcName10() + 10;
                 /*
@@ -200,7 +197,6 @@ namespace UnitTests
                 */
             }";
             string expectedOutput = @"const int CONST_NAME = 10;
-      
             void func()
             {
                 int res = funcName10() + CONST_NAME;

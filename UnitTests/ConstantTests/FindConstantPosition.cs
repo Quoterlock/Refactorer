@@ -3,7 +3,7 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Refactorer;
 
-namespace UnitTests
+namespace UnitTests.AdditionalTests
 {
     
         [TestClass]

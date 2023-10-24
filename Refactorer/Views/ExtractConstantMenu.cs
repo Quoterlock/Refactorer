@@ -54,12 +54,12 @@ namespace Refactorer.Views
                         _row,
                         _text,
                         allConstsCheckBox.Checked);
+                    this.Close();
                 }
                 catch (Exception ex)
                 {
                     MessageBox.Show(ex.Message);
                 }
-                this.Close();
             }
             else MessageBox.Show("Fill all text fields!");
         }
@@ -80,6 +80,7 @@ namespace Refactorer.Views
 
         private void cancelBtn_Click(object sender, EventArgs e)
         {
+            ResultText = _text;
             this.Close();
         }
     }

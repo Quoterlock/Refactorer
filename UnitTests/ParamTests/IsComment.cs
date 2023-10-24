@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace UnitTests.ParamTests
+namespace UnitTests.AdditionalTests
 {
     [TestClass]
     public class IsComment
@@ -46,7 +46,7 @@ namespace UnitTests.ParamTests
         [TestMethod]
         public void InMultilineCommentInOneLine2()
         {
-            var lines = new List<string> { "/* text" };
+            var lines = new List<string> { "/*text" };
             var result = Parser.IsComment(lines, 0, 4);
             Assert.IsTrue(result);
         }

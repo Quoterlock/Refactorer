@@ -26,12 +26,18 @@ namespace Refactorer
             string inputText = @"
                 void someFunc()
                 {
-                    int func = 1;
+                    int func = 10;
                     func();
                 }
 
-                void func() 
+                void func(int param) 
                 {
+                    int result = 10 + 4; // param
+                    /* param /*
+
+                    /* 
+                        param
+                    */
                 }";
             textBox.Text = inputText;
         }
@@ -55,16 +61,6 @@ namespace Refactorer
         private void deleteParamMenuItem_Click(object sender, EventArgs e)
         {
             textBox.Text = Refactorer2810.RemoveUnusedParameters(textBox.Text);
-        }
-
-        private void contextMenuStrip1_Opening(object sender, CancelEventArgs e)
-        {
-
-        }
-
-        private void textBox_TextChanged(object sender, EventArgs e)
-        {
-
         }
 
         private void GetInput()

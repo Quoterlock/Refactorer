@@ -237,6 +237,7 @@ namespace Refactorer
 
         public static bool IsSeparator(char ch)
         {
+            //var separators = { ' ', ',', ';', '.', '(', ')', '{', '}', '[', ']', '<', '>', '=', '+', '-', '*', '/', '%', '&', '|', '^', '!', '?', ':', '\t', '\n', '\r' }
             var separators = new char[] { ' ', '=', '+', '-', '(', ')', '{', '}', ';', '[', ']', '\t', '\r' };
             return separators.Contains(ch);
         }

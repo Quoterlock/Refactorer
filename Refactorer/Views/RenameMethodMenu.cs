@@ -25,7 +25,6 @@ namespace Refactorer.Views
 
         private void executeBtn_Click(object sender, EventArgs e)
         {
-
             if(CheckInput())
             {
                 try
@@ -46,11 +45,16 @@ namespace Refactorer.Views
 
         private bool CheckInput()
         {
-            return true;
+            if (!oldNameTextBox.Text.Equals(string.Empty)
+                && !newNameTextBox.Text.Equals(string.Empty)
+                && !_text.Equals(string.Empty))
+                return true;
+            return false;
         }
 
         private void cancelBtn_Click(object sender, EventArgs e)
         {
+            ResultText = _text;
             this.Close();
         }
     }

@@ -27,12 +27,6 @@ namespace Refactorer
             return text;
         }
 
-        public static string RemoveStringConstant(string line)
-        {
-            var pattern = "\"[^\"]*\"";
-            return Regex.Replace(line, pattern, string.Empty);
-        }
-
         // Повертає рядок, де треба вставити оголошення константи "const int NAME = 10;"
         public static int FindPositionForLocalConstantDeclaration(List<string> lines, int rowConst)
         {
@@ -172,6 +166,79 @@ namespace Refactorer
                 if (!isAdded) linesNoComments.Add(line);
             }
             return linesNoComments;
+        }
+
+        public static bool IsComment(List<string> lines, int row, int coln)
+        {
+            bool isMultiLineComment = false;
+            for (int i = row; i >= 0; i--)
+            {
+                int closeIndex = lines[i].IndexOf("*/");
+                int openIndex = lines[i].IndexOf("/*");
+                if(i == row)
+                {
+                    if (openIndex != -1 && openIndex < coln && (closeIndex < 0 || closeIndex > coln)) // /* point .... || /* point */ 
+                        isMultiLineComment = true;
+                    if (closeIndex < coln && (openIndex > coln || openIndex == -1)) // */ point /* || */ point ....
+                        isMultiLineComment = false;
+
+                    int lineCommentIndex = lines[i].IndexOf("//");
+                    if ((lineCommentIndex != -1 && lineCommentIndex < coln) || isMultiLineComment) // // text || multiline
+                        return true;
+                }
+                else
+                {
+                    if (closeIndex != -1 && openIndex == -1) // ... */ point
+                        return false;
+                    if(openIndex != -1 && closeIndex == -1) // /*... point
+                        return true;
+
+                    if (openIndex != -1 && closeIndex != -1)
+                    {
+                        if (openIndex < closeIndex)  // /* ... */ ... point
+                            return false;
+                        else if (openIndex > closeIndex) // */ ... /* ... point
+                            return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        public static bool IsStringConst(List<string> funcBody, int i, int index)
+        {
+            var pattern = "\"[^\"]*\"";
+            MatchCollection matches = Regex.Matches(funcBody[i], pattern);
+            foreach(Match match in matches)
+            {
+                if (match.Index <= index && index <= (match.Index + match.Length))
+                    return true;
+            }
+            return false;
+        }
+
+        public static bool IsReservedWord(string str)
+        {
+            // List of C++ reserved words
+            List<string> reservedWords = new List<string>
+            {
+                "asm", "auto", "bool", "break", "case", "catch", "char", "class", "const",
+                "const_cast", "continue", "default", "delete", "do", "double", "dynamic_cast",
+                "else", "enum", "explicit", "export", "extern", "false", "float", "for", "friend",
+                "goto", "if", "inline", "int", "long", "mutable", "namespace", "new", "operator",
+                "private", "protected", "public", "register", "reinterpret_cast", "return", "short",
+                "signed", "sizeof", "static", "static_cast", "struct", "switch", "template", "this",
+                "throw", "true", "try", "typedef", "typeid", "typename", "union", "unsigned", "using",
+                "virtual", "void", "volatile", "wchar_t", "while"
+            };
+
+            return reservedWords.Contains(str);
+        }
+
+        public static bool IsSeparator(char ch)
+        {
+            var separators = new char[] { ' ', '=', '+', '-', '(', ')', '{', '}', ';', '[', ']', '\t', '\r' };
+            return separators.Contains(ch);
         }
     }
 }

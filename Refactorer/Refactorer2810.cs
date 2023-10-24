@@ -17,13 +17,11 @@ namespace Refactorer
 {
     public static class Refactorer2810
     {
-        /*
-            Користувач виділяж назву методу, натискає праву кнопку і обирає Rename
-            виділений текст одразу вводиться в поле зі старою назвою,
-            Користувач вводить нову назву в іншому полі та обирає назву класу (опціонально)
-         */
         public static string ExtractConstant(string constantValue, string constantName, int rowNumber, string text, bool extractAll)
         {
+            if (Parser.IsReservedWord(constantName))
+                throw new Exception(constantName + " is reserved word");
+
             Dictionary<int,List<int>> constants = new Dictionary<int, List<int>>();
             var lines = Parser.SplitOnLines(text);
 
@@ -41,29 +39,30 @@ namespace Refactorer
 
         public static string RenameMethod(string oldName, string newName, string className, string text)
         {
-            // (!) Не враховує класи. Просто переіменовує за назвою.
-            // (!) Не враховує коментарі (також буде замінювати у рядкових константах)
-            // треба це допрацювати
-            var resultLines = new List<string>();
+            if (Parser.IsReservedWord(newName))
+                throw new Exception(newName + " is reserved word");
+
+            // TODO: перевірити, чи такий вже існує
+
+            // TODO: щось зробити з класами
 
             var lines = Parser.SplitOnLines(text);
-            foreach (var line in lines)
+
+            for(int i = 0; i < lines.Count; i++)
             {
-                var indexes = FindAllInLine(line, oldName + "(");
-                string newLine = line;
+                var indexes = FindAllInLine(lines[i], oldName + "(");
+                string newLine = lines[i];
                 foreach (var index in indexes)
                 {
-                    if (IsPreviousCharIsSeparator(line, index))
+                    if (!Parser.IsComment(lines, i, index) && !Parser.IsStringConst(lines, i, index))
+                    if (Parser.IsSeparator(lines[i][index-1]) || lines[i][index - 1].Equals('.'))
                     {
-                        string part1 = newLine.Substring(0, index);
-                        string part3 = newLine.Substring(index + oldName.Length);
-                        newLine = part1 + newName + part3;
+                        newLine = ReplaceByIndex(index, oldName.Length, newName, newLine);
                     }
                 }
-                resultLines.Add(newLine);
+                lines[i] = newLine;
             }
-
-            return Parser.ConnectLines(resultLines);
+            return Parser.ConnectLines(lines);
         }
 
         public static string RemoveUnusedParameters(string text)
@@ -78,7 +77,7 @@ namespace Refactorer
                 var parameters = new Dictionary<string, string>(header.Parameters);
                 foreach (var param in parameters) 
                 {
-                    if (!ParamIsUsed(param, funcBody))
+                    if (!ParamIsUsed(param.Key, funcBody))
                     {
                         header.Parameters.Remove(param.Key); // Key -> назва параметра, value - тип (int/float...)
                         lines[header.RowInText] = header.ToString() + '\r'; // replace header with new one
@@ -97,7 +96,7 @@ namespace Refactorer
             for(int i = 0; i < lines.Count; i++)
             {
                 Match match = Regex.Match(lines[i], pattern);
-                if (match.Success)
+                if (match.Success && !Parser.IsComment(lines, i, 0))
                 {
                     var header = new FunctionHeader();
                     header = header.Convert(lines[i], i);
@@ -107,44 +106,24 @@ namespace Refactorer
             return headers;            
         }
 
-        private static bool ParamIsUsed(KeyValuePair<string, string> parameter, List<string> funcBody)
+        private static bool ParamIsUsed(string parameter, List<string> funcBody)
         {
-            bool isUsed = false;
-            bool isMultilineComment = false;
-            foreach(var line in funcBody)
+            for (int i = 0; i < funcBody.Count; i++)
             {
-                // це погано використовувати ref, але поки так.
-                isUsed |= IsParamUsedInLine(parameter.Key, line, ref isMultilineComment);
+                List<int> indexes = FindAllInLine(funcBody[i], parameter);
+
+                foreach (var index in indexes)
+                {
+                    if (!Parser.IsComment(funcBody, i, index) && !Parser.IsStringConst(funcBody, i, index))
+                    {
+                        char prev = funcBody[i][index - 1];
+                        char next = funcBody[i][index + parameter.Length];
+                        if (Parser.IsSeparator(prev) && (Parser.IsSeparator(next) || next.Equals('.')))
+                            return true;
+                    }
+                }
             }
-            return isUsed;
-        }
-        
-        private static bool IsParamUsedInLine(string parameterName, string line, ref bool isMultiLineComment)
-        {
-            bool isUsed = false, isLineComment = false;
-
-            line = Parser.RemoveStringConstant(line);
-            
-            var words = line.Split(' ', '=', '+', '-', '(', ')', '{', '}', ';', '[', ']').ToList();
-
-            foreach(var word in words)
-            {
-                isLineComment |= word.Contains("//");
-                if (word.Contains("/*")) isMultiLineComment = true;
-                else if (word.Contains("*/")) isMultiLineComment = false;
-
-                var subWords = word.Split('*', '/');
-
-                // TODO: check the situation when "TextHere_paramName.DoSomething()"
-                // or "TextHere.paramName"
-                // Напевно треба зробити все через індекси
-                foreach(var subWord in subWords)
-                    if(subWord == parameterName || subWord.Contains(parameterName + "."))
-                        if(!isLineComment && !isMultiLineComment)
-                            isUsed = true;
-            }
-
-            return isUsed;
+            return false;
         }
 
         private static List<string> ReplaceConst(List<string> lines, Dictionary<int, List<int>> constants, string constantValue, string constantName)
@@ -154,17 +133,23 @@ namespace Refactorer
                 constantInLine.Value.Reverse();
                 foreach (var constantIndex in constantInLine.Value)
                 {
-                    int startIndex = constantIndex, endIndex = constantValue.Length;
+                    int startIndex = constantIndex, count = constantValue.Length;
                     if (isStringConstant(lines[constantInLine.Key], constantValue, constantIndex))
                     {
-                        startIndex = constantIndex - 1; endIndex = constantValue.Length + 2;
+                        startIndex = constantIndex - 1; count = constantValue.Length + 2;
                     }
 
-                    lines[constantInLine.Key] = lines[constantInLine.Key].Remove(startIndex, endIndex);
-                    lines[constantInLine.Key] = lines[constantInLine.Key].Insert(startIndex, constantName);
+                    lines[constantInLine.Key] = ReplaceByIndex(startIndex, count, constantName, lines[constantInLine.Key]);
                 }
             }
             return lines;
+        }
+
+        private static string ReplaceByIndex(int startIndex, int count, string value, string str)
+        {
+            str = str.Remove(startIndex, count);
+            str = str.Insert(startIndex, value);
+            return str;
         }
 
         private static bool isStringConstant(string line, string constantValue, int constantIndex)
@@ -340,22 +325,6 @@ namespace Refactorer
                 currentIndex = line.IndexOf(str, currentIndex + str.Length);
             }
             return indexes;
-        }
-
-        private static bool IsPreviousCharIsSeparator(string line, int index)
-        {
-            if (index - 1 < 0) return true;
-            var prevChar = line.ElementAt(index - 1);
-            var separators = new char[] { ' ', '.', '=', '+', '-', '(', ')', '{', '}', ';', '[', ']','\t','\r' };
-            return separators.Contains(prevChar);
-        }
-
-        private static bool IsNextCharIsSeparator(string line, int index)
-        {
-            if (index + 1 <= line.Length) return true;
-            var nextChar = line.ElementAt(index + 1);
-            var separators = new char[] { ' ', '.', '=', '+', '-', '(', ')', '{', '}', ';', '[', ']' };
-            return separators.Contains(nextChar);
         }
     }
 }

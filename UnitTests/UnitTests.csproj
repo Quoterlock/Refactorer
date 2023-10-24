@@ -54,6 +54,8 @@
     <Compile Include="ConstantTests\FindConstantPosition.cs" />
     <Compile Include="ConstantTests\FindPositionForLocalConstantDeclarationTest.cs" />
     <Compile Include="DeleteParamUnitTests.cs" />
+    <Compile Include="ParamTests\IsComment.cs" />
+    <Compile Include="ParamTests\IsStringConst.cs" />
     <Compile Include="RenameMethodTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ExtractConstantUnitTests.cs" />

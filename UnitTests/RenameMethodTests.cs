@@ -172,6 +172,8 @@ namespace UnitTests
             Assert.AreEqual(expectedResult, result);
         }
 
+        
+
         // 9 - Назва методу, що обрав користувач відповідає зарезервованому слову -> виключення
         [TestMethod]
         public void MethodName_Equal_To_ReservedWord()

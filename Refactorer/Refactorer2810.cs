@@ -158,11 +158,22 @@ namespace Refactorer
                 constantInLine.Value.Reverse();
                 foreach (var constantIndex in constantInLine.Value)
                 {
-                    lines[constantInLine.Key] = lines[constantInLine.Key].Remove(constantIndex, constantValue.Length);
-                    lines[constantInLine.Key] = lines[constantInLine.Key].Insert(constantIndex, constantName);
+                    int startIndex = constantIndex, endIndex = constantValue.Length;
+                    if (isStringConstant(lines[constantInLine.Key], constantValue, constantIndex))
+                    {
+                        startIndex = constantIndex - 1; endIndex = constantValue.Length + 2;
+                    }
+
+                    lines[constantInLine.Key] = lines[constantInLine.Key].Remove(startIndex, endIndex);
+                    lines[constantInLine.Key] = lines[constantInLine.Key].Insert(startIndex, constantName);
                 }
             }
             return lines;
+        }
+
+        private static bool isStringConstant(string line, string constantValue, int constantIndex)
+        {
+            return constantIndex > 0 && line[constantIndex-1].Equals('"') && line[constantIndex + constantValue.Length].Equals('\"');
         }
 
         public static List<string> AddConstDeclaration(List<string> lines, string constantValue, string constantName, int index)
@@ -177,52 +188,34 @@ namespace Refactorer
             if (TryParseConstantType(constantValue, out string inferredType))
             {
                 constantType = inferredType;
+                if (inferredType.Equals("string")) constantValue = '"' + constantValue + '"';
+                if (inferredType.Equals("char")) constantValue = "'" + constantValue + "'";
             }
 
             // Формуємо оголошення константи
             string declaration;
             if (position > 0)
+            {
                 declaration = $"\nconst {constantType} {constantName} = {constantValue};\r";
-            else 
-                declaration = $"const {constantType} {constantName} = {constantValue};\r";
-
-            // Вставляємо оголошення на знайдений рядок
-            updatedLines.Insert(position, declaration);
-
+                updatedLines[position] += declaration;
+            }
+            else
+            {
+                declaration = $"const {constantType} {constantName} = {constantValue};\r\n";
+                updatedLines[position] = updatedLines[position].Insert(0, declaration);
+            }
             return updatedLines;
         }
 
         private static bool TryParseConstantType(string value, out string type)
         {
-            if (int.TryParse(value, out _))
-            {
-                type = "int";
-                return true;
-            }
-            else if (double.TryParse(value, out _))
-            {
-                type = "double";
-                return true;
-            }
-            else if (float.TryParse(value, out _))
-            {
-                type = "float";
-                return true;
-            }
-            else if (bool.TryParse(value, out _))
-            {
-                type = "bool";
-                return true;
-            }
-            else if (char.TryParse(value, out _))
-            {
-                type = "char";
-                return true;
-            }
-
-
-            type = "string"; // Якщо не вдалося визначити тип, вважаємо, що це string
-            return false;
+            if (int.TryParse(value, out _)) type = "int";
+            else if (double.TryParse(value, out _)) type = "double";
+            else if (float.TryParse(value, out _)) type = "float";
+            else if (bool.TryParse(value, out _)) type = "bool";
+            else if (char.TryParse(value, out _)) type = "char";
+            else type = "string";
+            return true;
         }
 
         public static Dictionary<int, List<int>> FindAllConstantPositions(List<string> linesInput, string constantValue)

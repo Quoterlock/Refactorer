@@ -51,7 +51,6 @@ namespace Refactorer
                         {
                             if (Char.IsWhiteSpace(lines[i][index - 1]))
                             {
-                                position = i;
                                 if (!lines[i].Contains("{"))
                                     position++;
                                 return position;
@@ -59,7 +58,8 @@ namespace Refactorer
                         }
                         else
                         {
-                            position = i + 1;
+                            if (!lines[i].Contains("{"))
+                                position++;
                             return position;
                         }
                             

@@ -98,13 +98,13 @@ namespace UnitTests
         public void UnusedParam_Used_Id_LineComment()
         {
             string input = @"
-                void func(int param)
+void func(int param)
                 {
                     //param = 0;
                 }
             ";
             string expectedOutput = @"
-                void func()
+void func()
                 {
                     //param = 0;
                 }
@@ -118,7 +118,7 @@ namespace UnitTests
         public void UnusedParam_Used_Id_MultilineComment()
         {
             string input = @"
-                void func(int param)
+void func(int param)
                 {
                     /*
                     param = 0;
@@ -126,7 +126,7 @@ namespace UnitTests
                 }
             ";
             string expectedOutput = @"
-                void func()
+void func()
                 {
                     /*
                     param = 0;

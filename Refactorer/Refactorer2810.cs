@@ -20,7 +20,7 @@ namespace Refactorer
         public static string ExtractConstant(string constantValue, string constantName, int rowNumber, string text, bool extractAll)
         {
             if (Parser.IsReservedWord(constantName))
-                throw new Exception(constantName + " is reserved word");
+                throw new NameAlreadyExistException(constantName);
 
             Dictionary<int,List<int>> constants = new Dictionary<int, List<int>>();
             var lines = Parser.SplitOnLines(text);
@@ -40,7 +40,7 @@ namespace Refactorer
         public static string RenameMethod(string oldName, string newName, string className, string text)
         {
             if (Parser.IsReservedWord(newName))
-                throw new Exception(newName + " is reserved word");
+                throw new NameAlreadyExistException(newName);
 
             // TODO: перевірити, чи такий вже існує
 
@@ -55,7 +55,7 @@ namespace Refactorer
                 foreach (var index in indexes)
                 {
                     if (!Parser.IsComment(lines, i, index) && !Parser.IsStringConst(lines, i, index))
-                    if (Parser.IsSeparator(lines[i][index-1]) || lines[i][index - 1].Equals('.'))
+                    if (Parser.IsSeparator(lines[i][index-1]))
                     {
                         newLine = ReplaceByIndex(index, oldName.Length, newName, newLine);
                     }
@@ -118,7 +118,7 @@ namespace Refactorer
                     {
                         char prev = funcBody[i][index - 1];
                         char next = funcBody[i][index + parameter.Length];
-                        if (Parser.IsSeparator(prev) && (Parser.IsSeparator(next) || next.Equals('.')))
+                        if(Parser.IsSeparator(prev) && !prev.Equals('.') && Parser.IsSeparator(next) && !next.Equals('('))
                             return true;
                     }
                 }

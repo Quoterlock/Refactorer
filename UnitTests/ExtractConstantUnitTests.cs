@@ -16,7 +16,7 @@ namespace UnitTests
             int selectedRow = 2;
             string constantName = "MAGIC_NUMBER";
             string inputText = "void func()\r\n{\r\n\tfor(int = 0; i < 10; i++) {}\r\n}";
-            string expectedOutput = "const string MAGIC_NUMBER = 10;\r\nvoid func()\r\n{\r\n\tfor(int = 0; i < MAGIC_NUMBER; i++) {}\r\n}";
+            string expectedOutput = "const int MAGIC_NUMBER = 10;\r\nvoid func()\r\n{\r\n\tfor(int = 0; i < MAGIC_NUMBER; i++) {}\r\n}";
 
             var result = Refactorer2810.ExtractConstant(constant, constantName, selectedRow, inputText, false);
 

@@ -203,6 +203,9 @@ namespace Refactorer
             return updatedLines;
         }
 
+
+
+
         private static bool TryParseConstantType(string value, out string type)
         {
             if (int.TryParse(value, out _)) type = "int";

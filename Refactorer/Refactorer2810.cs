@@ -74,14 +74,14 @@ namespace Refactorer
 
             foreach (var header in functionHeaders)
             {
-                List<string> funcBody = Parser.GetFunctionBody(header, lines);
-
-                foreach (var param in header.Parameters) 
+                List<string> funcBody = Parser.GetFunctionBody(header.RowInText, lines);
+                var parameters = new Dictionary<string, string>(header.Parameters);
+                foreach (var param in parameters) 
                 {
                     if (!ParamIsUsed(param, funcBody))
                     {
                         header.Parameters.Remove(param.Key); // Key -> назва параметра, value - тип (int/float...)
-                        lines[header.RowInText] = Parser.ConvertToStringHeader(header); // replace header with new one
+                        lines[header.RowInText] = header.ToString() + '\r'; // replace header with new one
                     }
                 }
             }
@@ -92,19 +92,15 @@ namespace Refactorer
         private static List<FunctionHeader> FindFunctionHeaders(List<string> lines)
         {
             var headers = new List<FunctionHeader>();
-            string pattern = @"(\w+)\s+(\w+)\s*\(([^)]*)\);";
+            string pattern = @"(\w+)\s+(\w+)\s*\(([^)]*)\)";
 
-            foreach(var line in lines)
+            for(int i = 0; i < lines.Count; i++)
             {
-                Match match = Regex.Match(line, pattern);
+                Match match = Regex.Match(lines[i], pattern);
                 if (match.Success)
                 {
                     var header = new FunctionHeader();
-                    header.ReturnValue = match.Groups[1].Value;
-                    header.Name = match.Groups[2].Value;
-
-                    //TODO: add params correctly 
-                    //string parameters = match.Groups[3].Value;
+                    header = header.Convert(lines[i], i);
                     headers.Add(header);
                 }
             }

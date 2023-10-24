@@ -76,14 +76,14 @@ namespace Refactorer
             return position;
         }
 
-        public static List<string> GetFunctionBody(FunctionHeader header, List<string> lines)
+        public static List<string> GetFunctionBody(int row, List<string> lines)
         {
             int openCount = 0;
             int closeCount = 0;
             StringBuilder functionBody = new StringBuilder();
 
 
-            for (int i = header.RowInText; i < lines.Count; i++)
+            for (int i = row+1; i < lines.Count; i++)
             {
                 openCount += lines[i].Count(c => c == '{');
                 closeCount += lines[i].Count(c => c == '}');
@@ -97,24 +97,13 @@ namespace Refactorer
                     // Повертаємо тіло функції у вигляді списку рядків
                     return SplitOnLines(functionBody.ToString());
                 }
-
-                // Якщо кількість відкриваючих дужок більше за кількість закриваючих
-                if (openCount > closeCount)
-                    throw new Exception("Error: Unbalanced curly braces");
             }
+            // Якщо кількість відкриваючих дужок більше за кількість закриваючих
+            if (openCount > closeCount)
+                throw new Exception("Error: Unbalanced curly braces");
 
             // Якщо кількість відкриваючих та закриваючих дужок не зрівнялася, повертаємо порожній рядок або null
             return new List<string>();
-        }
-
-        public static string ConvertToStringHeader(FunctionHeader header)
-        {
-            string parameters = string.Empty;
-            foreach (var parameter in header.Parameters)
-                parameters += parameter.Value + " " + parameter.Key + ",";
-            parameters = parameters.Substring(0, parameters.Length - 1); // remove last coma.
-
-            return header.ReturnValue + " " + header.Name + "(" + parameters + ")\n";
         }
         
         public static List<string> RemoveComments(List<string> lines)

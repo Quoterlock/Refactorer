@@ -15,6 +15,9 @@ namespace Refactorer
 {
     public partial class Form1 : Form
     {
+        int selectedRow = 0;
+        int selectedStart = 0;
+        string selectedText = string.Empty; 
         public Form1()
         {
             InitializeComponent();
@@ -35,10 +38,7 @@ namespace Refactorer
 
         private void renameMethodToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            string selectedText = textBox.SelectedText;
-            int selectedStart = textBox.SelectionStart;
-            int selectedRow = textBox.GetLineFromCharIndex(selectedStart);
-
+            GetInput();
             var menu = new RenameMethodMenu(textBox.Text, selectedText);
             menu.ShowDialog();
             textBox.Text = menu.ResultText;
@@ -46,10 +46,7 @@ namespace Refactorer
 
         private void extractConstantToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            string selectedText = textBox.SelectedText;
-            int selectedStart = textBox.SelectionStart;
-            int selectedRow = textBox.GetLineFromCharIndex(selectedStart);
-
+            GetInput();
             var menu = new ExtractConstantMenu(textBox.Text, selectedRow, selectedText);
             menu.ShowDialog();
             textBox.Text = menu.ResultText;
@@ -57,7 +54,7 @@ namespace Refactorer
 
         private void deleteParamMenuItem_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Delete unused params");
+            textBox.Text = Refactorer2810.RemoveUnusedParameters(textBox.Text);
         }
 
         private void contextMenuStrip1_Opening(object sender, CancelEventArgs e)
@@ -68,6 +65,13 @@ namespace Refactorer
         private void textBox_TextChanged(object sender, EventArgs e)
         {
 
+        }
+
+        private void GetInput()
+        {
+            selectedText = textBox.SelectedText;
+            selectedStart = textBox.SelectionStart;
+            selectedRow = textBox.GetLineFromCharIndex(selectedStart);
         }
     }
 }

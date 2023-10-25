@@ -127,12 +127,38 @@ namespace UnitTests
         public void Two_Same_Methods_In_Different_Classes()
         {
             string oldName = "OldName"; string newName = "NewName";
-            string inputText = "class FirstClass\r\n{\r\n\tpublic:\r\n" +
-                "\tvoid OldName()\r\n\t{\r\n\t}\r\n}\r\n" +
-                "\r\nclass SecondClass\r\n{\r\n\tpublic:\r\n" +
-                "\tvoid OldName()\r\n\t{\r\n\t}\r\n}";
+            string inputText = @"class FirstClass
+            {
+	            public:
+	            void OldName()
+	            {
+	            }
+            }
 
-            Assert.ThrowsException<MoreThanOneMethodExistException>(() => Refactorer2810.RenameMethod(oldName, newName, string.Empty, inputText));
+            class SecondClass
+            {
+	            public:
+	            void OldName()
+	            {
+	            }
+            }";
+            string expected = @"class FirstClass
+            {
+	            public:
+	            void NewName()
+	            {
+	            }
+            }
+
+            class SecondClass
+            {
+	            public:
+	            void NewName()
+	            {
+	            }
+            }";
+            string result = Refactorer2810.RenameMethod(oldName, newName, string.Empty, inputText);
+            Assert.AreEqual(expected, result);
         }
 
         // 7 - Два однакових методи у різних класах

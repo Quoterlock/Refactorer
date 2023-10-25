@@ -123,7 +123,7 @@ namespace UnitTests
         public void Constant_Used_In_Exception_Message()
         {
             // Arrange
-            int selectedRow = 3;
+            int selectedRow = 6;
             string constantValue = "\"An error occurred.\"";
             string constantName = "ERROR_MESSAGE";
             string inputText = "try\r\n{\r\n\t// Some code that may throw an exception\r\n}\r\ncatch (Exception ex)\r\n{\r\n\tConsole.WriteLine(\"An error occurred.\");\r\n}";

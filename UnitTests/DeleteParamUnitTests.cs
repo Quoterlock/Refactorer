@@ -136,5 +136,23 @@ void func()
             var res = Refactorer2810.RemoveUnusedParameters(input);
             Assert.AreEqual(expectedOutput, res);
         }
+
+        //     якщо ім'я параметра збігається з назвою методу класу
+        [TestMethod]
+        public void UnusedParamName_same_as_classMethod_name2()
+        {
+            string input = @"void func(int Param)
+            {
+                Param           variable;
+            }
+            ";
+            string expectedOutput = @"void func()
+            {
+                Param           variable;
+            }
+            ";
+            var res = Refactorer2810.RemoveUnusedParameters(input);
+            Assert.AreEqual(expectedOutput, res);
+        }
     }
 }

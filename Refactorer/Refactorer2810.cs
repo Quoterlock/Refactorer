@@ -12,6 +12,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.VisualStyles;
+using System.Xml.Linq;
 
 namespace Refactorer
 {
@@ -19,7 +20,7 @@ namespace Refactorer
     {
         public static string ExtractConstant(string constantValue, string constantName, int rowNumber, string text, bool extractAll)
         {
-            if (Parser.IsReservedWord(constantName))
+            if (Parser.IsReservedWord(constantName) || IsExist(constantName, text))
                 throw new NameAlreadyExistException(constantName);
 
             Dictionary<int,List<int>> constants = new Dictionary<int, List<int>>();
@@ -39,10 +40,9 @@ namespace Refactorer
 
         public static string RenameMethod(string oldName, string newName, string className, string text)
         {
-            if (Parser.IsReservedWord(newName))
+            if (Parser.IsReservedWord(newName) || IsMethodExist(newName + "(", text))
                 throw new NameAlreadyExistException(newName);
 
-            // TODO: перевірити, чи такий вже існує
 
             // TODO: щось зробити з класами
 
@@ -55,10 +55,8 @@ namespace Refactorer
                 foreach (var index in indexes)
                 {
                     if (!Parser.IsComment(lines, i, index) && !Parser.IsStringConst(lines, i, index))
-                    if (Parser.IsSeparator(lines[i][index-1]))
-                    {
-                        newLine = ReplaceByIndex(index, oldName.Length, newName, newLine);
-                    }
+                        if (index == 0 || Parser.IsSeparator(lines[i][index-1]))
+                            newLine = ReplaceByIndex(index, oldName.Length, newName, newLine);
                 }
                 lines[i] = newLine;
             }
@@ -118,8 +116,18 @@ namespace Refactorer
                     {
                         char prev = funcBody[i][index - 1];
                         char next = funcBody[i][index + parameter.Length];
-                        if(Parser.IsSeparator(prev) && !prev.Equals('.') && Parser.IsSeparator(next) && !next.Equals('('))
-                            return true;
+
+                        //if() // Test var; -> Test var;
+                        int curIndex = index + parameter.Length;
+                        while(funcBody[i][curIndex].Equals(' '))
+                        {
+                            curIndex++;
+                        }
+                        if(!Char.IsLetterOrDigit(funcBody[i][curIndex]))
+                        {
+                            if (Char.IsSeparator(prev) && !prev.Equals('.') && Char.IsSeparator(next) && !next.Equals('('))
+                                return true;
+                        }
                     }
                 }
             }
@@ -169,8 +177,16 @@ namespace Refactorer
             if (TryParseConstantType(constantValue, out string inferredType))
             {
                 constantType = inferredType;
-                if (inferredType.Equals("string")) constantValue = '"' + constantValue + '"';
-                if (inferredType.Equals("char")) constantValue = "'" + constantValue + "'";
+                if (inferredType.Equals("string"))
+                {
+                    if (!constantValue[0].Equals('"')) constantValue = constantValue.Insert(0, "\"");
+                    if (!constantValue[constantValue.Length-1].Equals('"')) constantValue += "\"";
+                }
+                if (inferredType.Equals("char"))
+                {
+                    if (!constantValue[0].Equals('\'')) constantValue = constantValue.Insert(0, "\'");
+                    if (!constantValue[constantValue.Length - 1].Equals('\'')) constantValue += "\'";
+                }
             }
 
             // Формуємо оголошення константи
@@ -325,6 +341,33 @@ namespace Refactorer
                 currentIndex = line.IndexOf(str, currentIndex + str.Length);
             }
             return indexes;
+        }
+
+        public static bool IsMethodExist(string name, string text)
+        {
+            var result = FindAllInLine(text, name + "(");
+            if (result != null && result.Count > 0)
+            {
+                foreach (var itemIndex in result)
+                {
+                    if (Char.IsSeparator(text[itemIndex - 1]))
+                        return true;
+                }
+            }
+            return false;
+        }
+        private static bool IsExist(string name, string text)
+        {
+            var result = FindAllInLine(text, name);
+            if (result != null && result.Count > 0)
+            {
+                foreach (var itemIndex in result)
+                {
+                    if (Char.IsSeparator(text[itemIndex - 1]) && Char.IsSeparator(text[itemIndex + name.Length]))
+                        return true;
+                }
+            }
+            return false;
         }
     }
 }

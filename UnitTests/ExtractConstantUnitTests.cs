@@ -239,6 +239,34 @@ void func()
             Assert.AreEqual(expectedOutput, result, "The magic number was not replaced correctly.");
         }
 
+        // 13 - Виніс понстанти з плаваючою крапкою
+        [TestMethod]
+        public void Extract_DoubleConstant()
+        {
+            string constant = "10.4";
+            int selectedRow = 2;
+            string constantName = "MAGIC_NUMBER";
+            string inputText = @"void func()
+                {
+                    for(int = 0; i < 10; i++) 
+                    { 
+                        int num = 10.4 + 3;
+                    }
+                }";
+            string expectedOutput = @"const double MAGIC_NUMBER = 10.4;
+void func()
+                {
+                    for(int = 0; i < 10; i++) 
+                    { 
+                        int num = MAGIC_NUMBER + 3;
+                    }
+                }";
+
+            var result = Refactorer2810.ExtractConstant(constant, constantName, selectedRow, inputText, true);
+
+            Assert.AreEqual(expectedOutput, result, "The magic number was not replaced correctly.");
+        }
+
 
     }
 }

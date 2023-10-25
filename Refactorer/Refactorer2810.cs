@@ -40,9 +40,8 @@ namespace Refactorer
 
         public static string RenameMethod(string oldName, string newName, string className, string text)
         {
-            if (Parser.IsReservedWord(newName) || IsMethodExist(newName + "(", text))
+            if (Parser.IsReservedWord(newName) || IsMethodExist(newName, text))
                 throw new NameAlreadyExistException(newName);
-
 
             // TODO: щось зробити з класами
 
@@ -50,15 +49,7 @@ namespace Refactorer
 
             for(int i = 0; i < lines.Count; i++)
             {
-                var indexes = FindAllInLine(lines[i], oldName + "(");
-                string newLine = lines[i];
-                foreach (var index in indexes)
-                {
-                    if (!Parser.IsComment(lines, i, index) && !Parser.IsStringConst(lines, i, index))
-                        if (index == 0 || Parser.IsSeparator(lines[i][index-1]))
-                            newLine = ReplaceByIndex(index, oldName.Length, newName, newLine);
-                }
-                lines[i] = newLine;
+                lines[i] = RenameMethodInLine(lines, i, oldName, newName);
             }
             return Parser.ConnectLines(lines);
         }
@@ -72,12 +63,12 @@ namespace Refactorer
             foreach (var header in functionHeaders)
             {
                 List<string> funcBody = Parser.GetFunctionBody(header.RowInText, lines);
-                var parameters = new Dictionary<string, string>(header.Parameters);
+                var parameters = new List<Parameter>(header.Parameters);
                 foreach (var param in parameters) 
                 {
-                    if (!ParamIsUsed(param.Key, funcBody))
+                    if (!ParamIsUsed(param.Name, funcBody))
                     {
-                        header.Parameters.Remove(param.Key); // Key -> назва параметра, value - тип (int/float...)
+                        header.Parameters.Remove(param);
                         lines[header.RowInText] = header.ToString() + '\r'; // replace header with new one
                     }
                 }
@@ -117,20 +108,23 @@ namespace Refactorer
                         char prev = funcBody[i][index - 1];
                         char next = funcBody[i][index + parameter.Length];
 
-                        //if() // Test var; -> Test var;
                         int curIndex = index + parameter.Length;
-                        while(funcBody[i][curIndex].Equals(' '))
-                        {
-                            curIndex++;
-                        }
+                        while(funcBody[i][curIndex].Equals(' ')) curIndex++;
+
                         if(!Char.IsLetterOrDigit(funcBody[i][curIndex]))
-                        {
-                            if (Char.IsSeparator(prev) && !prev.Equals('.') && Char.IsSeparator(next) && !next.Equals('('))
+                            if (isParam(prev, next)) 
                                 return true;
-                        }
                     }
                 }
             }
+            return false;
+        }
+
+        private static bool isParam(char prev, char next)
+        {
+            if ((Char.IsSeparator(prev) || Char.IsControl(prev)) && !prev.Equals('.'))
+                if (Char.IsSeparator(next) || Char.IsControl(next) || next.Equals('.'))
+                    return true;
             return false;
         }
 
@@ -350,12 +344,13 @@ namespace Refactorer
             {
                 foreach (var itemIndex in result)
                 {
-                    if (Char.IsSeparator(text[itemIndex - 1]))
+                    if (Parser.IsSeparator(text[itemIndex - 1]))
                         return true;
                 }
             }
             return false;
         }
+
         private static bool IsExist(string name, string text)
         {
             var result = FindAllInLine(text, name);
@@ -368,6 +363,19 @@ namespace Refactorer
                 }
             }
             return false;
+        }
+
+        private static string RenameMethodInLine(List<string> lines, int i, string oldName, string newName)
+        {
+            var indexes = FindAllInLine(lines[i], oldName + "(");
+            string newLine = lines[i];
+            foreach (var index in indexes)
+            {
+                if (!Parser.IsComment(lines, i, index) && !Parser.IsStringConst(lines, i, index))
+                    if (index == 0 || Parser.IsSeparator(lines[i][index - 1]))
+                        newLine = ReplaceByIndex(index, oldName.Length, newName, newLine);
+            }
+            return newLine;
         }
     }
 }

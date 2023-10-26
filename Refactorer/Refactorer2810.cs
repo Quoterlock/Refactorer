@@ -85,7 +85,7 @@ namespace Refactorer
             for(int i = 0; i < lines.Count; i++)
             {
                 Match match = Regex.Match(lines[i], pattern);
-                if (match.Success && !Parser.IsComment(lines, i, 0))
+                if (match.Success && !Parser.IsComment(lines, i, 4) && !Parser.IsStringConst(lines, i, 4))
                 {
                     var header = new FunctionHeader();
                     header = header.Convert(lines[i], i);
@@ -344,7 +344,9 @@ namespace Refactorer
             {
                 foreach (var itemIndex in result)
                 {
-                    if (Parser.IsSeparator(text[itemIndex - 1]))
+                    if (Parser.IsSeparator(text[itemIndex - 1]) 
+                        && !Parser.IsStringConst(new List<string> { text }, 0, itemIndex)
+                        && !Parser.IsComment(new List<string> { text }, 0, itemIndex))
                         return true;
                 }
             }
@@ -358,7 +360,8 @@ namespace Refactorer
             {
                 foreach (var itemIndex in result)
                 {
-                    if (Char.IsSeparator(text[itemIndex - 1]) && Char.IsSeparator(text[itemIndex + name.Length]))
+                    if (Char.IsSeparator(text[itemIndex - 1]) && Char.IsSeparator(text[itemIndex + name.Length])
+                        && !Parser.IsComment(new List<string> { text }, 0, itemIndex))
                         return true;
                 }
             }

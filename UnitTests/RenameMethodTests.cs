@@ -225,6 +225,24 @@ namespace UnitTests
             Assert.ThrowsException<NameAlreadyExistException>(() => Refactorer2810.RenameMethod(oldName, newName, className, inputText));
         }
 
+        // 10.1 - Назва методу, яку вписав користувач вже існує (але у коментарі) -> виключення
+        [TestMethod]
+        public void MethodName_Is_Already_Exist_InComment()
+        {
+            // Arrange
+            string oldName = "OldName"; string newName = "MethodName";
+            string className = "MyClass";
+            string inputText = "class MyClass\r\n{\r\n" +
+                "\t//void MethodName()\r\n\t{\r\n\t}\r\n" +
+                "\tvoid OldName()\r\n\t{\r\n\t}\r\n}";
+            string expectedResult = "class MyClass\r\n{\r\n" +
+                "\t//void MethodName()\r\n\t{\r\n\t}\r\n" +
+                "\tvoid MethodName()\r\n\t{\r\n\t}\r\n}";
+            // Act + Assert
+            var result = Refactorer2810.RenameMethod(oldName, newName, className, inputText);
+            Assert.AreEqual(expectedResult, result);
+        }
+
         //11
         //назва змінної відповідає назві методу
         [TestMethod]

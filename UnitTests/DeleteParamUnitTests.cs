@@ -154,5 +154,43 @@ void func()
             var res = Refactorer2810.RemoveUnusedParameters(input);
             Assert.AreEqual(expectedOutput, res);
         }
+
+        // якщо заголовок функції закоментований
+        [TestMethod]
+        public void FunctionHeaderIsCommented()
+        {
+            string input = @"
+//void func(int param)
+                {
+                }
+            ";
+            string expectedOutput = @"
+//void func(int param)
+                {
+                }
+            ";
+            var res = Refactorer2810.RemoveUnusedParameters(input);
+            Assert.AreEqual(expectedOutput, res);
+        }
+
+        // якщо заголовок функції закоментований (багаторядковий коментар)
+        [TestMethod]
+        public void FunctionHeader_IsCommented_With_MultilineComment()
+        {
+            string input = @"
+/*void func(int param)
+                {
+                }
+*/
+            ";
+            string expectedOutput = @"
+/*void func(int param)
+                {
+                }
+*/
+            ";
+            var res = Refactorer2810.RemoveUnusedParameters(input);
+            Assert.AreEqual(expectedOutput, res);
+        }
     }
 }

@@ -267,6 +267,32 @@ void func()
             Assert.AreEqual(expectedOutput, result, "The magic number was not replaced correctly.");
         }
 
+        // 14 - якщо назва константи фігурує тільки у коментарі
+        [TestMethod]
+        public void ConstantName_AlreadyExist_InComment()
+        {
+            string constant = "10.4";
+            int selectedRow = 2;
+            string constantName = "MAGIC_NUMBER";
+            string inputText = @"void func()
+                {
+                    for(int = 0; i < 10; i++) 
+                    { 
+                        int num = 10.4 + 3; //MAGIC_NUMBER
+                    }
+                }";
+            string expectedOutput = @"const double MAGIC_NUMBER = 10.4;
+void func()
+                {
+                    for(int = 0; i < 10; i++) 
+                    { 
+                        int num = MAGIC_NUMBER + 3; //MAGIC_NUMBER
+                    }
+                }";
 
+            var result = Refactorer2810.ExtractConstant(constant, constantName, selectedRow, inputText, true);
+
+            Assert.AreEqual(expectedOutput, result, "The magic number was not replaced correctly.");
+        }
     }
 }

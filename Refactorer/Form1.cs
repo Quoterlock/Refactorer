@@ -21,6 +21,7 @@ namespace Refactorer
         public Form1()
         {
             InitializeComponent();
+            fontSizeNumUD.Value = 10;
             //this.ContextMenuStrip = contextMenuStrip1;
             this.textBox.ContextMenuStrip= contextMenuStrip1;
             string inputText = @"
@@ -68,6 +69,13 @@ namespace Refactorer
             selectedText = textBox.SelectedText;
             selectedStart = textBox.SelectionStart;
             selectedRow = textBox.GetLineFromCharIndex(selectedStart);
+        }
+
+        private void fontSizeNumUD_ValueChanged(object sender, EventArgs e)
+        {
+            int fontSize = Convert.ToInt32(fontSizeNumUD.Value);
+            if (fontSize > 0)
+                textBox.Font = new Font("Consolas", fontSize);
         }
     }
 }

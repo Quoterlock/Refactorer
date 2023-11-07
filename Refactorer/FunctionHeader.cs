@@ -39,7 +39,9 @@ namespace Refactorer
     public class FunctionHeader
     {
         public string Name { get; set; }
+
         public string ReturnValue { get; set; }
+
         public List<Parameter> Parameters { get;set; }
 
         public int RowInText { get; set; }

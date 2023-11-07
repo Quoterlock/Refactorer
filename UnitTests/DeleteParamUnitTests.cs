@@ -192,5 +192,25 @@ void func()
             var res = Refactorer2810.RemoveUnusedParameters(input);
             Assert.AreEqual(expectedOutput, res);
         }
+
+        // 10 - якщо параметр зустрінеться в коментарі
+        [TestMethod]
+        public void UsedParam_Before_ArithmeticSymbols()
+        {
+            string input = @"
+void func(int param)
+                {
+                    param=0;
+                }
+            ";
+            string expectedOutput = @"
+void func(int param)
+                {
+                    param=0;
+                }
+            ";
+            var res = Refactorer2810.RemoveUnusedParameters(input);
+            Assert.AreEqual(expectedOutput, res);
+        }
     }
 }

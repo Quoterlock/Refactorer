@@ -105,7 +105,9 @@ namespace Refactorer
                 {
                     if (!Parser.IsComment(funcBody, i, index) && !Parser.IsStringConst(funcBody, i, index))
                     {
-                        char prev = funcBody[i][index - 1];
+                        char prev = ' ';
+                        if (index-1 >= 0)
+                            prev = funcBody[i][index - 1];
                         char next = funcBody[i][index + parameter.Length];
 
                         int curIndex = index + parameter.Length;
@@ -122,8 +124,8 @@ namespace Refactorer
 
         private static bool isParam(char prev, char next)
         {
-            if ((Char.IsSeparator(prev) || Char.IsControl(prev)) && !prev.Equals('.'))
-                if (Char.IsSeparator(next) || Char.IsControl(next) || next.Equals('.'))
+            if (Parser.IsSeparator(prev) && !prev.Equals('.'))
+                if (Parser.IsSeparator(next) && next != '(')
                     return true;
             return false;
         }

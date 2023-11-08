@@ -51,7 +51,6 @@
             this.textBox.Name = "textBox";
             this.textBox.Size = new System.Drawing.Size(782, 408);
             this.textBox.TabIndex = 0;
-            this.textBox.TextChanged += new System.EventHandler(this.textBox_TextChanged);
             this.textBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBox_KeyDown);
             // 
             // contextMenuStrip1

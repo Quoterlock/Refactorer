@@ -25,8 +25,8 @@ namespace Refactorer
             InitializeComponent();
             
             fontSizeNumUD.Value = 10;
-            //this.ContextMenuStrip = contextMenuStrip1;
-            this.textBox.ContextMenuStrip= contextMenuStrip1;
+            this.richTextBox.ContextMenuStrip= contextMenuStrip1;
+            
             string inputText = @"
                 void someFunc()
                 {
@@ -43,47 +43,40 @@ namespace Refactorer
                         param
                     */
                 }";
-            textBox.Text = inputText;
+            richTextBox.Text = inputText;
         }
 
         private void renameMethodToolStripMenuItem_Click(object sender, EventArgs e)
         {
             GetInput();
-            var menu = new RenameMethodMenu(textBox.Text, selectedText);
+            var menu = new RenameMethodMenu(richTextBox.Text, selectedText);
             menu.ShowDialog();
 
-            AddToBuffer(textBox.Text.ToString());
-            textBox.Text = menu.ResultText;
+            AddToBuffer(richTextBox.Text.ToString());
+            richTextBox.Text = menu.ResultText;
         }
 
         private void extractConstantToolStripMenuItem_Click(object sender, EventArgs e)
         {
             GetInput();
-            var menu = new ExtractConstantMenu(textBox.Text, selectedRow, selectedText);
+            var menu = new ExtractConstantMenu(richTextBox.Text, selectedRow, selectedText);
             menu.ShowDialog();
 
-            AddToBuffer(textBox.Text.ToString());
-            textBox.Text = menu.ResultText;
+            AddToBuffer(richTextBox.Text.ToString());
+            richTextBox.Text = menu.ResultText;
         }
 
         private void deleteParamMenuItem_Click(object sender, EventArgs e)
         {
-            AddToBuffer(textBox.Text.ToString());
-            textBox.Text = Refactorer2810.RemoveUnusedParameters(textBox.Text);
-        }
-
-        private void GetInput()
-        {
-            selectedText = textBox.SelectedText;
-            selectedStart = textBox.SelectionStart;
-            selectedRow = textBox.GetLineFromCharIndex(selectedStart);
+            AddToBuffer(richTextBox.Text.ToString());
+            richTextBox.Text = Refactorer2810.RemoveUnusedParameters(richTextBox.Text);
         }
 
         private void fontSizeNumUD_ValueChanged(object sender, EventArgs e)
         {
             int fontSize = Convert.ToInt32(fontSizeNumUD.Value);
             if (fontSize > 0)
-                textBox.Font = new Font("Consolas", fontSize);
+                richTextBox.Font = new Font("Consolas", fontSize);
         }
 
         private void AddToBuffer(string text)
@@ -92,7 +85,6 @@ namespace Refactorer
             if(buffer.Count > BUFFER_SIZE)
                 buffer.RemoveAt(0);
         }
-
         private string GetLastFromBuffer()
         {
             string last;
@@ -105,13 +97,20 @@ namespace Refactorer
             return last;
         }
 
-        private void textBox_KeyDown(object sender, KeyEventArgs e)
+        private void GetInput()
+        {
+            selectedText = richTextBox.SelectedText;
+            selectedStart = richTextBox.SelectionStart;
+            selectedRow = richTextBox.GetLineFromCharIndex(selectedStart);
+        }
+
+        private void richTextBox_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyData == (Keys.Control | Keys.Z))
             {
                 string value = GetLastFromBuffer();
                 if (value != null)
-                    textBox.Text = value;
+                    richTextBox.Text = value;
             }
         }
     }

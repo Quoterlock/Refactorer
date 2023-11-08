@@ -212,5 +212,8 @@ void func(int param)
             var res = Refactorer2810.RemoveUnusedParameters(input);
             Assert.AreEqual(expectedOutput, res);
         }
+
+        //[TestMethod]
+        //public void Params
     }
 }

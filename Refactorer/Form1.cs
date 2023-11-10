@@ -23,8 +23,8 @@ namespace Refactorer
         public Form1()
         {
             InitializeComponent();
-            
-            fontSizeNumUD.Value = 10;
+            richTextBoxNumbers.SelectionAlignment = HorizontalAlignment.Right;
+            fontSizeNumUD.Value = 8;
             this.richTextBox.ContextMenuStrip= contextMenuStrip1;
             
             string inputText = @"
@@ -43,7 +43,9 @@ namespace Refactorer
                         param
                     */
                 }";
+            richTextBoxNumbers.Lines = new string[] { "1" };
             richTextBox.Text = inputText;
+            richTextBox_TextChanged(richTextBox,EventArgs.Empty);
         }
 
         private void renameMethodToolStripMenuItem_Click(object sender, EventArgs e)
@@ -71,14 +73,7 @@ namespace Refactorer
             AddToBuffer(richTextBox.Text.ToString());
             richTextBox.Text = Refactorer2810.RemoveUnusedParameters(richTextBox.Text);
         }
-
-        private void fontSizeNumUD_ValueChanged(object sender, EventArgs e)
-        {
-            int fontSize = Convert.ToInt32(fontSizeNumUD.Value);
-            if (fontSize > 0)
-                richTextBox.Font = new Font("Consolas", fontSize);
-        }
-
+        
         private void AddToBuffer(string text)
         {
             buffer.Add(text);
@@ -112,6 +107,65 @@ namespace Refactorer
                 if (value != null)
                     richTextBox.Text = value;
             }
+        }
+        private void fontSizeNumUD_ValueChanged(object sender, EventArgs e)
+        {
+            int fontSize = Convert.ToInt32(fontSizeNumUD.Value);
+            if (fontSize > 0)
+            {
+                richTextBox.Font = new Font("Consolas", fontSize);
+                richTextBoxNumbers.Font = new Font("Consolas", fontSize);
+            }
+        }
+
+        private int lineCount = 1;
+        private void richTextBox_TextChanged(object sender, EventArgs e)
+        {
+            var text = richTextBoxNumbers.Lines.ToList();
+            if (richTextBox.Lines.Length < lineCount)
+            {
+                for (int i = 0; i < lineCount-richTextBox.Lines.Length; i++)
+                {
+                    if (richTextBox.Lines.Length>0)
+                    {
+                        text.RemoveAt(text.Count - 1);
+                    }
+                    else
+                    {
+                        if (i == lineCount-richTextBox.Lines.Length-1)
+                        {
+                            break;
+                        }  
+                        text.RemoveAt(text.Count - 1);
+                    }
+                }
+                richTextBoxNumbers.Lines = text.ToArray();
+                lineCount = richTextBox.Lines.Length;
+                if (lineCount == 0)
+                {
+                    lineCount = 1;
+                }
+                richTextBoxNumbers.SelectionStart = richTextBox.Lines.Length;
+                richTextBoxNumbers.ScrollToCaret();
+                if (richTextBox.SelectionStart!=0)
+                {
+                    richTextBox.SelectionStart -= 1 ;
+                }
+                richTextBox.ScrollToCaret();
+            }
+
+            if (richTextBox.Lines.Length > lineCount)
+            {
+                for (int i = 0; i < richTextBox.Lines.Length - lineCount; i++)
+                {
+                    text.Add( (Convert.ToInt32(text[text.Count -1])+1).ToString());
+                }
+                richTextBoxNumbers.Lines = text.ToArray();
+                lineCount = richTextBox.Lines.Length;
+                richTextBoxNumbers.SelectionStart = richTextBox.Lines.Length;
+                richTextBoxNumbers.ScrollToCaret();
+            }
+
         }
     }
 }

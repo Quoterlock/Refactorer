@@ -14,18 +14,26 @@ namespace Refactorer
 {
     public partial class Form1 : Form
     {
-        private const int BUFFER_SIZE = 10;
-        int selectedRow = 0;
-        int selectedStart = 0;
-        string selectedText = string.Empty;
-        List<string> buffer = new List<string>();
-        
+        private const int BUFFER_SIZE = 3;
+        private List<string> buffer = new List<string>();
+
+        private int selectedRow = 0;
+        private int selectedStart = 0;
+        private string selectedText = string.Empty;
+
+        private FileManager fileManager;
+        private bool isFileSaved;
+
+        private int lineCount = 1;
+
         public Form1()
         {
             InitializeComponent();
+            fileManager = new FileManager();
             richTextBoxNumbers.SelectionAlignment = HorizontalAlignment.Right;
+            isFileSaved = false;
             fontSizeNumUD.Value = 8;
-            this.richTextBox.ContextMenuStrip= contextMenuStrip1;
+            richTextBox.ContextMenuStrip= contextMenuStrip1;
             
             string inputText = @"
                 void someFunc()
@@ -74,31 +82,6 @@ namespace Refactorer
             richTextBox.Text = Refactorer2810.RemoveUnusedParameters(richTextBox.Text);
         }
         
-        private void AddToBuffer(string text)
-        {
-            buffer.Add(text);
-            if(buffer.Count > BUFFER_SIZE)
-                buffer.RemoveAt(0);
-        }
-        private string GetLastFromBuffer()
-        {
-            string last;
-            if (buffer.Count > 0)
-            {
-                last = buffer.Last();
-                buffer.RemoveAt(buffer.Count - 1);
-            }
-            else last = null;
-            return last;
-        }
-
-        private void GetInput()
-        {
-            selectedText = richTextBox.SelectedText;
-            selectedStart = richTextBox.SelectionStart;
-            selectedRow = richTextBox.GetLineFromCharIndex(selectedStart);
-        }
-
         private void richTextBox_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyData == (Keys.Control | Keys.Z))
@@ -108,6 +91,7 @@ namespace Refactorer
                     richTextBox.Text = value;
             }
         }
+
         private void fontSizeNumUD_ValueChanged(object sender, EventArgs e)
         {
             int fontSize = Convert.ToInt32(fontSizeNumUD.Value);
@@ -118,9 +102,10 @@ namespace Refactorer
             }
         }
 
-        private int lineCount = 1;
         private void richTextBox_TextChanged(object sender, EventArgs e)
         {
+            FileIsSaved(false);
+
             var text = richTextBoxNumbers.Lines.ToList();
             if (richTextBox.Lines.Length < lineCount)
             {
@@ -166,6 +151,102 @@ namespace Refactorer
                 richTextBoxNumbers.ScrollToCaret();
             }
 
+        }
+
+        private void openFileToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            openFileDialog.Title = "Open .cpp or .h File";
+            openFileDialog.Filter = "C++ Files (*.cpp;*.h)|*.cpp;*.h|All Files (*.*)|*.*";
+            openFileDialog.Multiselect = false;
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                string selectedFile = openFileDialog.FileName;
+                fileNameLabel.Text = selectedFile;
+                try
+                {
+                    richTextBox.Text = fileManager.Read(selectedFile);
+                    FileIsSaved(true);
+                }
+                catch(Exception ex) 
+                {
+                    MessageBox.Show(ex.Message);
+                }
+            }
+        }
+
+        private void saveToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (!fileNameLabel.Text.Equals("(none)"))
+            {
+                fileManager.Save(fileNameLabel.Text, richTextBox.Text);
+                FileIsSaved(true);
+                MessageBox.Show("All changes are saved");
+            }
+            else
+            {
+                MessageBox.Show("Any file isn't opened. Try to \"Save as...\" instead.");
+            }
+        }
+
+        private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            saveFileDialog.Title = "Create a File";
+            saveFileDialog.Filter = "Text Files (*.txt)|*.txt|Source Code File (*.cpp)|*.cpp|Header File (*.h)|*.h|All Files (*.*)|*.*";
+            saveFileDialog.DefaultExt = "txt";
+
+            if (saveFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                string filePath = saveFileDialog.FileName;
+                try
+                {
+                    fileManager.SaveAs(filePath, richTextBox.Text);
+                    FileIsSaved(true);
+                    MessageBox.Show("File created successfully.");
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("An error occurred: " + ex.Message);
+                }
+            }
+        }
+
+        private void FileIsSaved(bool v)
+        {
+            isFileSaved = v;
+            if (v)
+                isSavedLable.Text = "True";
+            else
+                isSavedLable.Text = "False";
+        }
+
+        private void AddToBuffer(string text)
+        {
+            buffer.Add(text);
+            if (buffer.Count > BUFFER_SIZE)
+                buffer.RemoveAt(0);
+        }
+
+        private string GetLastFromBuffer()
+        {
+            string last;
+            if (buffer.Count > 0)
+            {
+                last = buffer.Last();
+                buffer.RemoveAt(buffer.Count - 1);
+            }
+            else last = null;
+            return last;
+        }
+
+        private void GetInput()
+        {
+            selectedText = richTextBox.SelectedText;
+            selectedStart = richTextBox.SelectionStart;
+            selectedRow = richTextBox.GetLineFromCharIndex(selectedStart);
         }
     }
 }

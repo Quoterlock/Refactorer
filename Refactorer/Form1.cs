@@ -51,7 +51,6 @@ namespace Refactorer
                         param
                     */
                 }";
-            richTextBoxNumbers.Lines = new string[] { "1" };
             richTextBox.Text = inputText;
             richTextBox_TextChanged(richTextBox,EventArgs.Empty);
         }
@@ -82,6 +81,7 @@ namespace Refactorer
             richTextBox.Text = Refactorer2810.RemoveUnusedParameters(richTextBox.Text);
         }
         
+
         private void richTextBox_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyData == (Keys.Control | Keys.Z))
@@ -91,6 +91,45 @@ namespace Refactorer
                     richTextBox.Text = value;
             }
         }
+
+        private void AddLineNumbers()
+        {
+            // create & set Point pt to (0,0)    
+            Point pt = new Point(0, 0);
+            // get First Index & First Line from richTextBox1    
+            int First_Index = richTextBox.GetCharIndexFromPosition(pt);
+            int First_Line = richTextBox.GetLineFromCharIndex(First_Index);
+            // set X & Y coordinates of Point pt to ClientRectangle Width & Height respectively    
+            pt.X = ClientRectangle.Width;
+            pt.Y = ClientRectangle.Height;
+            // get Last Index & Last Line from richTextBox1    
+            int Last_Index = richTextBox.GetCharIndexFromPosition(pt);
+            int Last_Line = richTextBox.GetLineFromCharIndex(Last_Index);
+            // set Center alignment to LineNumberTextBox    
+            richTextBoxNumbers.SelectionAlignment = HorizontalAlignment.Center;
+            // set LineNumberTextBox text to null & width to getWidth() function value    
+            richTextBoxNumbers.Text = "";
+            /*richTextBoxNumbers.Width = Width;*/
+            // now add each line number to LineNumberTextBox upto last line    
+            for (int i = First_Line; i <= Last_Line+1; i++)
+            {
+                richTextBoxNumbers.Text += i + 1 + "\n";
+            }
+        }
+        private void richTextBox1_SelectionChanged(object sender, EventArgs e)    
+        {    
+            Point pt = richTextBox.GetPositionFromCharIndex(richTextBox.SelectionStart);    
+            if (pt.X == 1)    
+            {    
+                AddLineNumbers();    
+            }    
+        }    
+    
+        private void richTextBox1_VScroll(object sender, EventArgs e)    
+        {
+            AddLineNumbers();
+        }    
+
 
         private void fontSizeNumUD_ValueChanged(object sender, EventArgs e)
         {
@@ -105,52 +144,9 @@ namespace Refactorer
         private void richTextBox_TextChanged(object sender, EventArgs e)
         {
             FileIsSaved(false);
-
-            var text = richTextBoxNumbers.Lines.ToList();
-            if (richTextBox.Lines.Length < lineCount)
-            {
-                for (int i = 0; i < lineCount-richTextBox.Lines.Length; i++)
-                {
-                    if (richTextBox.Lines.Length>0)
-                    {
-                        text.RemoveAt(text.Count - 1);
-                    }
-                    else
-                    {
-                        if (i == lineCount-richTextBox.Lines.Length-1)
-                        {
-                            break;
-                        }  
-                        text.RemoveAt(text.Count - 1);
-                    }
-                }
-                richTextBoxNumbers.Lines = text.ToArray();
-                lineCount = richTextBox.Lines.Length;
-                if (lineCount == 0)
-                {
-                    lineCount = 1;
-                }
-                richTextBoxNumbers.SelectionStart = richTextBox.Lines.Length;
-                richTextBoxNumbers.ScrollToCaret();
-                if (richTextBox.SelectionStart!=0)
-                {
-                    richTextBox.SelectionStart -= 1 ;
-                }
-                richTextBox.ScrollToCaret();
-            }
-
-            if (richTextBox.Lines.Length > lineCount)
-            {
-                for (int i = 0; i < richTextBox.Lines.Length - lineCount; i++)
-                {
-                    text.Add( (Convert.ToInt32(text[text.Count -1])+1).ToString());
-                }
-                richTextBoxNumbers.Lines = text.ToArray();
-                lineCount = richTextBox.Lines.Length;
-                richTextBoxNumbers.SelectionStart = richTextBox.Lines.Length;
-                richTextBoxNumbers.ScrollToCaret();
-            }
-
+            richTextBoxNumbers.Text = "";    
+            AddLineNumbers();    
+     
         }
 
         private void openFileToolStripMenuItem_Click(object sender, EventArgs e)

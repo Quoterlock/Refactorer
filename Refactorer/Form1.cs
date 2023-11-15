@@ -23,6 +23,7 @@ namespace Refactorer
 
         private FileManager fileManager;
         private bool isFileSaved;
+        private bool isFileOppened;
 
         private int lineCount = 1;
 
@@ -32,6 +33,7 @@ namespace Refactorer
             fileManager = new FileManager();
             richTextBoxNumbers.SelectionAlignment = HorizontalAlignment.Right;
             isFileSaved = false;
+            isFileOppened = false;
             fontSizeNumUD.Value = 8;
             richTextBox.ContextMenuStrip= contextMenuStrip1;
             
@@ -143,7 +145,7 @@ namespace Refactorer
 
         private void richTextBox_TextChanged(object sender, EventArgs e)
         {
-            FileIsSaved(false);
+            FileIsUpToDate(false);
             richTextBoxNumbers.Text = "";    
             AddLineNumbers();    
      
@@ -163,7 +165,8 @@ namespace Refactorer
                 try
                 {
                     richTextBox.Text = fileManager.Read(selectedFile);
-                    FileIsSaved(true);
+                    isFileOppened = true;
+                    FileIsUpToDate(true);
                 }
                 catch(Exception ex) 
                 {
@@ -177,7 +180,7 @@ namespace Refactorer
             if (!fileNameLabel.Text.Equals("(none)"))
             {
                 fileManager.Save(fileNameLabel.Text, richTextBox.Text);
-                FileIsSaved(true);
+                FileIsUpToDate(true);
                 MessageBox.Show("All changes are saved");
             }
             else
@@ -200,7 +203,9 @@ namespace Refactorer
                 try
                 {
                     fileManager.SaveAs(filePath, richTextBox.Text);
-                    FileIsSaved(true);
+                    FileIsUpToDate(true);
+                    isFileOppened = true;
+                    fileNameLabel.Text = filePath;
                     MessageBox.Show("File created successfully.");
                 }
                 catch (Exception ex)
@@ -210,7 +215,7 @@ namespace Refactorer
             }
         }
 
-        private void FileIsSaved(bool v)
+        private void FileIsUpToDate(bool v)
         {
             isFileSaved = v;
             if (v)

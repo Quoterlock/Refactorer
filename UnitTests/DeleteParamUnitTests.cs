@@ -213,7 +213,44 @@ void func(int param)
             Assert.AreEqual(expectedOutput, res);
         }
 
-        //[TestMethod]
-        //public void Params
+        [TestMethod]
+        public void Sync_Template_With_Header()
+        {
+            string input = @"void func(int param);
+
+void func(int param)
+                {
+                    param=0;
+                }
+            ";
+            string expectedOutput = @"void func(int param);
+
+void func(int param)
+                {
+                    param=0;
+                }
+            ";
+            var res = Refactorer2810.RemoveUnusedParameters(input);
+            Assert.AreEqual(expectedOutput, res);
+        }
+
+        [TestMethod]
+        public void Sync_Template_With_Header2()
+        {
+            string input = @"void func(int param);
+
+void func(int param)
+                {
+                }
+            ";
+            string expectedOutput = @"void func();
+
+void func()
+                {
+                }
+            ";
+            var res = Refactorer2810.RemoveUnusedParameters(input);
+            Assert.AreEqual(expectedOutput, res);
+        }
     }
 }

@@ -25,10 +25,9 @@ namespace Refactorer.Views
 
         private void executeBtn_Click(object sender, EventArgs e)
         {
-            if(CheckInput())
-            {
                 try
                 {
+                    CheckInput();
                     ResultText = Refactorer2810.RenameMethod(
                         oldNameTextBox.Text, 
                         newNameTextBox.Text, 
@@ -37,10 +36,9 @@ namespace Refactorer.Views
                     this.Close();
                 } catch (Exception ex)
                 {
+                    ResultText = _text;
                     MessageBox.Show(ex.Message);
                 }
-            }
-            else MessageBox.Show("Fill all text fields!");
         }
 
         private bool CheckInput()
@@ -48,7 +46,15 @@ namespace Refactorer.Views
             if (!oldNameTextBox.Text.Equals(string.Empty)
                 && !newNameTextBox.Text.Equals(string.Empty)
                 && !_text.Equals(string.Empty))
+            {
+                string name = oldNameTextBox.Text;
+                if (Char.IsNumber(name[0]) || ContainsSeparators(name))
+                    throw new Exception("Choose correct name!");
+                name = newNameTextBox.Text;
+                if (Char.IsNumber(name[0]) || ContainsSeparators(name))
+                    throw new Exception("New method name is unacceptable!");
                 return true;
+            }
             return false;
         }
 
@@ -56,6 +62,14 @@ namespace Refactorer.Views
         {
             ResultText = _text;
             this.Close();
+        }
+
+        private bool ContainsSeparators(string name)
+        {
+            foreach (var i in name)
+                if (Parser.IsSeparator(i) && i != '_')
+                    return true;
+            return false;
         }
     }
 }

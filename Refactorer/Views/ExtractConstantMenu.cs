@@ -44,10 +44,9 @@ namespace Refactorer.Views
 
         private void refactorBtn_Click(object sender, EventArgs e)
         {
-            if(CheckInput())
-            {
                 try
                 {
+                    CheckInput();
                     ResultText = Refactorer2810.ExtractConstant(
                         constValueTextBox.Text,
                         constNameTextBox.Text,
@@ -60,8 +59,6 @@ namespace Refactorer.Views
                 {
                     MessageBox.Show(ex.Message);
                 }
-            }
-            else MessageBox.Show("Fill all text fields!");
         }
 
         private bool CheckInput()
@@ -73,8 +70,19 @@ namespace Refactorer.Views
                 && constValueTextBox.Text != null
                 && constValueTextBox.Text != string.Empty)
             {
+                string name = constNameTextBox.Text;
+                if (Char.IsNumber(name[0]) || ContainsSeparators(name))
+                    throw new Exception("Constant name is unacceptable!");
                 return true;
             }
+            throw new Exception("Fill all text fields!");
+        }
+
+        private bool ContainsSeparators(string name)
+        {
+            foreach (var i in name)
+                if (Parser.IsSeparator(i) && i!='_')
+                        return true;
             return false;
         }
 

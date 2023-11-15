@@ -5,7 +5,9 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.Eventing.Reader;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Net.Mime;
+using System.Net.NetworkInformation;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -58,7 +60,8 @@ namespace Refactorer
         {
             var lines = Parser.SplitOnLines(text);
 
-            List<FunctionHeader> functionHeaders = FindFunctionHeaders(lines);
+            List<FunctionHeader> functionHeaders, templates;
+            FindHeadersAndTemplates(lines, out functionHeaders, out templates);
 
             foreach (var header in functionHeaders)
             {
@@ -68,7 +71,10 @@ namespace Refactorer
                 {
                     if (!ParamIsUsed(param.Name, funcBody))
                     {
+                        var template = FindTemplateForFunc(header, templates);
                         header.Parameters.Remove(param);
+                        if(template != null) // replace template with new one
+                            lines[template.RowInText] = header.ToString() + ";\r";
                         lines[header.RowInText] = header.ToString() + '\r'; // replace header with new one
                     }
                 }
@@ -77,22 +83,53 @@ namespace Refactorer
         }
 
         // =============== LOW LVL ====================
-        private static List<FunctionHeader> FindFunctionHeaders(List<string> lines)
+
+        private static FunctionHeader FindTemplateForFunc(FunctionHeader func, List<FunctionHeader> templates)
         {
-            var headers = new List<FunctionHeader>();
+            foreach(var temp in templates)
+                if (IsTemplate(temp, func))
+                    return temp;
+            return null;
+        }
+        
+        private static bool IsTemplate(FunctionHeader temp, FunctionHeader func)
+        {
+            if (!func.ReturnValue.Equals(temp.ReturnValue) 
+                || !func.Name.Equals(temp.Name) 
+                || func.Parameters.Count != temp.Parameters.Count)
+            {
+                return false;
+            }
+
+            for(int i = 0; i < func.Parameters.Count; i++)
+            {
+                // only type, because template may not contains param names
+                if (!func.Parameters[i].Type.Equals(temp.Parameters[i].Type))
+                    return false;
+            }
+            return true;
+        }
+
+        private static void FindHeadersAndTemplates(List<string> lines, out List<FunctionHeader> headers, out List<FunctionHeader> templates)
+        {
+            headers = new List<FunctionHeader>();
+            templates = new List<FunctionHeader>();
+
             string pattern = @"(\w+)\s+(\w+)\s*\(([^)]*)\)";
 
-            for(int i = 0; i < lines.Count; i++)
+            for (int i = 0; i < lines.Count; i++)
             {
                 Match match = Regex.Match(lines[i], pattern);
                 if (match.Success && !Parser.IsComment(lines, i, 4) && !Parser.IsStringConst(lines, i, 4))
                 {
-                    var header = new FunctionHeader();
-                    header = header.Convert(lines[i], i);
-                    headers.Add(header);
+                    var func = new FunctionHeader();
+                    func = func.Convert(lines[i], i);
+                    if (lines[i].Contains(";"))
+                        templates.Add(func);
+                    else
+                        headers.Add(func);
                 }
             }
-            return headers;            
         }
 
         private static bool ParamIsUsed(string parameter, List<string> funcBody)

@@ -48,10 +48,10 @@ namespace Refactorer.Views
                 && !_text.Equals(string.Empty))
             {
                 string name = oldNameTextBox.Text;
-                if (Char.IsNumber(name[0]) || ContainsSeparators(name))
+                if (Char.IsNumber(name[0]) || Parser.ContainsSeparators(name))
                     throw new Exception("Choose correct name!");
                 name = newNameTextBox.Text;
-                if (Char.IsNumber(name[0]) || ContainsSeparators(name))
+                if (Char.IsNumber(name[0]) || Parser.ContainsSeparators(name))
                     throw new Exception("New method name is unacceptable!");
                 return true;
             }
@@ -62,14 +62,6 @@ namespace Refactorer.Views
         {
             ResultText = _text;
             this.Close();
-        }
-
-        private bool ContainsSeparators(string name)
-        {
-            foreach (var i in name)
-                if (Parser.IsSeparator(i) && i != '_')
-                    return true;
-            return false;
         }
     }
 }

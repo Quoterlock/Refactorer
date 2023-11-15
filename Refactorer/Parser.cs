@@ -240,5 +240,13 @@ namespace Refactorer
             char[] separators = { ' ', ',', ';', '.', '(', ')', '{', '}', '[', ']', '<', '>', '=', '+', '-', '*', '/', '%', '&', '|', '^', '!', '?', ':', '\t', '\n', '\r' };
             return separators.Contains(ch);
         }
+
+        public static bool ContainsSeparators(string name)
+        {
+            foreach (var i in name)
+                if (IsSeparator(i) && i != '_')
+                    return true;
+            return false;
+        }
     }
 }

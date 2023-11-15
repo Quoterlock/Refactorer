@@ -19,12 +19,20 @@ namespace Refactorer
         {
             var words = str.Split(new char[] { ' ', '='}).ToList();
             words.Remove(string.Empty);
-            return new Parameter()
-            {
-                Type = words[0],
-                Name = words[1],
-                DefaultValue = (words.Count == 3)? words[2] : null
-            };
+            if(words.Count == 1) // if only type (for template)
+                return new Parameter() 
+                { 
+                    Type = words[0],
+                    Name = "name",
+                    DefaultValue = null
+                };
+            else
+                return new Parameter()
+                {
+                    Type = words[0],
+                    Name = words[1],
+                    DefaultValue = (words.Count == 3)? words[2] : null
+                };
         }
             
         public override string ToString()

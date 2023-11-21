@@ -22,6 +22,7 @@ namespace Refactorer
     {
         public static string ExtractConstant(string constantValue, string constantName, int rowNumber, string text, bool extractAll)
         {
+            //text = Normalize(text);
             if (Parser.IsReservedWord(constantName) || IsExist(constantName, text))
                 throw new NameAlreadyExistException(constantName);
 
@@ -58,6 +59,7 @@ namespace Refactorer
 
         public static string RemoveUnusedParameters(string text)
         {
+            //text = Normalize(text);
             var lines = Parser.SplitOnLines(text);
 
             List<FunctionHeader> functionHeaders, templates;
@@ -80,6 +82,30 @@ namespace Refactorer
                 }
             }
             return Parser.ConnectLines(lines);
+        }
+
+        // places '\n' before '{' if needed. (but no tabs)
+        public static string Normalize(string text)
+        {
+            var indexes = FindAllInLine(text, "{");
+            int shift = 0;
+            foreach(var index in indexes)
+            {
+                // place \n before each } to match the format
+                int prev = index - 1 + shift;
+
+                if (prev >= 0 
+                    && !text[prev].Equals('\t') 
+                    && !text[prev].Equals('\n') 
+                    && !text[prev].Equals('\r')
+                    && !Parser.IsComment(new List<string> { text }, 0, index + shift)
+                    && !Parser.IsStringConst(new List<string> { text }, 0, index + shift))
+                {
+                    text = text.Insert(prev+1, "\n");
+                    shift++;
+                }
+            }
+            return text;
         }
 
         // =============== LOW LVL ====================

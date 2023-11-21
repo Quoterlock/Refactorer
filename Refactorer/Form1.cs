@@ -27,7 +27,7 @@ namespace Refactorer
 
         private int lineCount = 1;
 
-        public Form1()
+        public Form1(string[] args)
         {
             InitializeComponent();
             fileManager = new FileManager();
@@ -36,8 +36,25 @@ namespace Refactorer
             isFileOppened = false;
             fontSizeNumUD.Value = 8;
             richTextBox.ContextMenuStrip= contextMenuStrip1;
-            
-            string inputText = @"
+
+            string inputText = string.Empty;
+            if (args.Length > 0) // load from selected file
+            {
+                try
+                {
+                    inputText = fileManager.Read(args[0]);
+                    isFileOppened = true;
+                    FileIsUpToDate(true);
+                    fileNameLabel.Text = args[0];
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
+            } 
+            else // loaf default
+            {
+                inputText = @"
                 void someFunc()
                 {
                     int func = 10;
@@ -53,6 +70,8 @@ namespace Refactorer
                         param
                     */
                 }";
+            }
+
             richTextBox.Text = inputText;
             richTextBox_TextChanged(richTextBox,EventArgs.Empty);
         }

@@ -46,6 +46,8 @@
             this.richTextBoxNumbers = new System.Windows.Forms.RichTextBox();
             this.label3 = new System.Windows.Forms.Label();
             this.isSavedLable = new System.Windows.Forms.Label();
+            this.embedMethodToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.extractMethodToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.fontSizeNumUD)).BeginInit();
             this.menuStrip1.SuspendLayout();
@@ -57,9 +59,12 @@
             this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.renameMethodToolStripMenuItem,
             this.extractConstantToolStripMenuItem,
-            this.deleteParamMenuItem});
+            this.deleteParamMenuItem,
+            this.embedMethodToolStripMenuItem,
+            this.extractMethodToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(192, 70);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(192, 136);
+            this.contextMenuStrip1.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip1_Opening);
             // 
             // renameMethodToolStripMenuItem
             // 
@@ -112,7 +117,7 @@
             this.richTextBox.Font = new System.Drawing.Font("Consolas", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.richTextBox.Location = new System.Drawing.Point(40, 27);
             this.richTextBox.Name = "richTextBox";
-            this.richTextBox.Size = new System.Drawing.Size(509, 559);
+            this.richTextBox.Size = new System.Drawing.Size(832, 559);
             this.richTextBox.TabIndex = 3;
             this.richTextBox.Text = "";
             this.richTextBox.WordWrap = false;
@@ -129,7 +134,7 @@
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Padding = new System.Windows.Forms.Padding(6, 3, 0, 3);
-            this.menuStrip1.Size = new System.Drawing.Size(561, 25);
+            this.menuStrip1.Size = new System.Drawing.Size(884, 25);
             this.menuStrip1.TabIndex = 4;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -204,7 +209,7 @@
             // 
             this.label3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(425, 595);
+            this.label3.Location = new System.Drawing.Point(748, 595);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(41, 13);
             this.label3.TabIndex = 8;
@@ -214,18 +219,32 @@
             // 
             this.isSavedLable.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.isSavedLable.AutoSize = true;
-            this.isSavedLable.Location = new System.Drawing.Point(462, 595);
+            this.isSavedLable.Location = new System.Drawing.Point(785, 595);
             this.isSavedLable.Name = "isSavedLable";
             this.isSavedLable.Size = new System.Drawing.Size(32, 13);
             this.isSavedLable.TabIndex = 9;
             this.isSavedLable.Text = "False";
+            // 
+            // embedMethodToolStripMenuItem
+            // 
+            this.embedMethodToolStripMenuItem.Name = "embedMethodToolStripMenuItem";
+            this.embedMethodToolStripMenuItem.Size = new System.Drawing.Size(191, 22);
+            this.embedMethodToolStripMenuItem.Text = "Embed method";
+            this.embedMethodToolStripMenuItem.Click += new System.EventHandler(this.embedMethodToolStripMenuItem_Click);
+            // 
+            // extractMethodToolStripMenuItem
+            // 
+            this.extractMethodToolStripMenuItem.Name = "extractMethodToolStripMenuItem";
+            this.extractMethodToolStripMenuItem.Size = new System.Drawing.Size(191, 22);
+            this.extractMethodToolStripMenuItem.Text = "Extract method";
+            this.extractMethodToolStripMenuItem.Click += new System.EventHandler(this.extractMethodToolStripMenuItem_Click);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
-            this.ClientSize = new System.Drawing.Size(561, 626);
+            this.ClientSize = new System.Drawing.Size(884, 626);
             this.Controls.Add(this.isSavedLable);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.richTextBoxNumbers);
@@ -267,6 +286,8 @@
         private System.Windows.Forms.Label fileNameLabel;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label isSavedLable;
+        private System.Windows.Forms.ToolStripMenuItem embedMethodToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem extractMethodToolStripMenuItem;
     }
 }
 

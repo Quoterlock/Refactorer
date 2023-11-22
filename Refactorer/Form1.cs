@@ -1,4 +1,5 @@
-﻿using Refactorer.Views;
+﻿using CSharpProjectPractFirst.Model;
+using Refactorer.Views;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -267,6 +268,28 @@ namespace Refactorer
             selectedText = richTextBox.SelectedText;
             selectedStart = richTextBox.SelectionStart;
             selectedRow = richTextBox.GetLineFromCharIndex(selectedStart);
+        }
+
+        private void contextMenuStrip1_Opening(object sender, CancelEventArgs e)
+        {
+
+        }
+
+        private void embedMethodToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var menu = new EmbedFuncMenu(richTextBox.Text);
+            menu.ShowDialog();
+            AddToBuffer(richTextBox.Text.ToString());
+            richTextBox.Text = menu.Result;
+        }
+
+        private void extractMethodToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            GetInput();
+            var menu = new ExtractMethodMenu(richTextBox.Text, selectedText);
+            menu.ShowDialog();
+            AddToBuffer(richTextBox.Text.ToString());
+            richTextBox.Text = menu.Result;
         }
     }
 }

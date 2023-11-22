@@ -66,16 +66,16 @@ namespace Refactorer.Views
             }
 
             string[] types = new string[] { "void", "int", "double", "bool", "float", "string", "byte", "long" };
-            foreach(var type in types)
+            if(Parser.IsReservedWord(textBoxMethodType.Text))
             {
-                if (Parser.IsReservedWord(textBoxMethodType.Text) && 
-                    !(textBoxMethodType.Text.Equals(type) 
-                    || textBoxMethodType.Text.Equals(type + "*") 
-                    || textBoxMethodType.Text.Equals(type + "[]")))
+                foreach (var type in types)
                 {
-                    throw new Exception("Enter correct return value, PLEASE!");
+                    if (textBoxMethodType.Text.Equals(type))
+                        return;
                 }
+                throw new Exception("Enter correct return value, PLEASE!");
             }
+
         }
 
         private void button1_Click(object sender, EventArgs e)

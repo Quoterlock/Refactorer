@@ -29,6 +29,7 @@ namespace Refactorer.Views
 
         private void cancelBtn_Click(object sender, EventArgs e)
         {
+            Result = _code;
             this.Close();
         }
     }

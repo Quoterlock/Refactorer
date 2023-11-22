@@ -58,7 +58,6 @@
             this.textBoxMethodBody.ScrollBars = System.Windows.Forms.ScrollBars.Both;
             this.textBoxMethodBody.Size = new System.Drawing.Size(213, 59);
             this.textBoxMethodBody.TabIndex = 21;
-            this.textBoxMethodBody.TextChanged += new System.EventHandler(this.textBoxMethodBody_TextChanged);
             // 
             // label3
             // 

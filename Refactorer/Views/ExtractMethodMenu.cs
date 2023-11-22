@@ -80,12 +80,8 @@ namespace Refactorer.Views
 
         private void button1_Click(object sender, EventArgs e)
         {
+            Result = _code;
             this.Close();
-        }
-
-        private void textBoxMethodBody_TextChanged(object sender, EventArgs e)
-        {
-
         }
     }
 }
